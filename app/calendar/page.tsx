@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import { useSession } from "next-auth/react";
 import { Calendar, momentLocalizer } from "react-big-calendar";
 import { CalendarEvent } from "@/types/entities";
@@ -54,6 +54,7 @@ import {
 import { z } from "zod";
 import { Loader2 } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { v4 as uuidv4 } from "uuid";
 
 const localizer = momentLocalizer(moment);
 
@@ -97,13 +98,53 @@ const eventTypeStyles: Record<string, string> = {
   personal: "bg-yellow-100 text-yellow-800",
 };
 
+interface DraggableEvent {
+  id: string;
+  title: string;
+  type: "class" | "assignment" | "exam" | "meeting" | "personal";
+  color: string;
+  duration: number; // Duration in minutes
+}
+
+const initialDraggableEvents: DraggableEvent[] = [
+  { id: uuidv4(), title: "Class", type: "class", color: "#3B82F6", duration: 60 },
+  {
+    id: uuidv4(),
+    title: "Assignment",
+    type: "assignment",
+    color: "#10B981",
+    duration: 90,
+  },
+  { id: uuidv4(), title: "Exam", type: "exam", color: "#EF4444", duration: 120 },
+  {
+    id: uuidv4(),
+    title: "Meeting",
+    type: "meeting",
+    color: "#A855F7",
+    duration: 45,
+  },
+  {
+    id: uuidv4(),
+    title: "Personal",
+    type: "personal",
+    color: "#F59E0B",
+    duration: 30,
+  },
+];
+
 export default function CalendarPage() {
   const { data: session } = useSession();
   const userId = session?.user?.id;
 
   // State for selected class filter
-  const [selectedClassType, setSelectedClassType] = useState<"class" | "assignment" | "exam" | "meeting" | "personal" | null>(null);
+  const [selectedClassType, setSelectedClassType] = useState<
+    "class" | "assignment" | "exam" | "meeting" | "personal" | null
+  >(null);
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
+  const [draggableEvents, setDraggableEvents] = useState<DraggableEvent[]>(
+    initialDraggableEvents
+  );
+  const draggedEvent = useRef<DraggableEvent | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isNewEvent, setIsNewEvent] = useState(false);
   const [activeTab, setActiveTab] = useState("details");
@@ -120,9 +161,13 @@ export default function CalendarPage() {
     error: errorClass,
   } = useCalendarEventsByClass(selectedClassType!);
 
-  const { mutate: createEvent, isPending: isLoadingCreate } = useCreateCalendarEvent();
-  const { mutate: updateEvent, isPending: isLoadingUpdate } = useUpdateCalendarEvent();
-  const { mutate: deleteEvent, isPending: isLoadingDelete } = useDeleteCalendarEvent();
+  const { mutate: createEvent, isPending: isLoadingCreate } =
+    useCreateCalendarEvent();
+  const { mutate: updateEvent, isPending: isLoadingUpdate } =
+    useUpdateCalendarEvent();
+  const { mutate: deleteEvent, isPending: isLoadingDelete } =
+    useDeleteCalendarEvent();
+
 
   // Use filtered events if a class type is selected, otherwise use all events
   const events = selectedClassType ? classEvents : allEvents;
@@ -341,6 +386,23 @@ export default function CalendarPage() {
     );
   }
 
+  const handleDragStart = (event: React.DragEvent, draggableEvent: DraggableEvent) => {
+    draggedEvent.current = draggableEvent;
+  };
+
+  const handleDrop = (dropDate: Date) => {
+    if (draggedEvent.current) {
+      const { title, type, color, duration } = draggedEvent.current;
+      const end = new Date(dropDate.getTime() + duration * 60000); // Add duration in minutes
+      handleSelectSlot({ start: dropDate, end, title, type, color });
+      draggedEvent.current = null;
+    }
+  };
+
+  const duplicateDraggableEvent = (event: DraggableEvent) => {
+    setDraggableEvents([...draggableEvents, { ...event, id: uuidv4() }]);
+  };
+
   return (
     <>
       <SiteHeader title="Classes" />
@@ -351,7 +413,11 @@ export default function CalendarPage() {
             <Select
               value={selectedClassType || ""}
               onValueChange={(value) =>
-                setSelectedClassType(value === "all" ? null : value as "class" | "assignment" | "exam" | "meeting" | "personal")
+                setSelectedClassType(
+                  value === "all"
+                    ? null
+                    : (value as "class" | "assignment" | "exam" | "meeting" | "personal")
+                )
               }
             >
               <SelectTrigger>
@@ -368,6 +434,50 @@ export default function CalendarPage() {
             </Select>
           </div>
         </div>
+        <Card className="shadow-lg rounded-xl overflow-hidden">
+          <CardHeader className="bg-gray-50">
+            <CardTitle className="text-xl font-semibold text-gray-700">
+              Drag and Drop Events
+            </CardTitle>
+            <CardDescription className="text-gray-500">
+              Drag these events onto the calendar to schedule them.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="p-6">
+            <div className="flex flex-wrap gap-4">
+              {draggableEvents.map((event) => (
+                <div
+                  key={event.id}
+                  draggable
+                  onDragStart={(e) => handleDragStart(e, event)}
+                  className={`rounded-lg p-3 cursor-grab shadow-sm border border-gray-200 ${
+                    eventTypeStyles[event.type] || "bg-gray-100 text-gray-800"
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <span>{event.title}</span>
+                    <div className="flex gap-2">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => duplicateDraggableEvent(event)}
+                        className="hover:bg-gray-200 rounded-full"
+                      >
+                        <PlusIcon className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+
+
+
+
+
         <Card className="shadow-lg rounded-xl overflow-hidden">
           <CardHeader className="bg-gray-50">
             <CardTitle className="text-xl font-semibold text-gray-700">
@@ -388,7 +498,7 @@ export default function CalendarPage() {
                 resizable
                 onSelectSlot={handleSelectSlot}
                 onSelectEvent={handleSelectEvent}
-                onEventDrop={handleEventDrop}
+                onEventDrop={handleEventDrop}                
                 onEventResize={handleEventResize}
                 eventPropGetter={(event) => ({
                   style: {
@@ -400,6 +510,7 @@ export default function CalendarPage() {
                     border: "none",
                   },
                   className: "hover:opacity-80 transition-opacity",
+                  
                 })}
                 className="rbc-calendar-custom"
               />
@@ -408,7 +519,7 @@ export default function CalendarPage() {
         </Card>
 
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogContent className="max-w-2xl max-h-[95vh] overflow-y-auto rounded-xl shadow-2xl">
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto rounded-xl shadow-2xl">
             <DialogHeader className="border-b pb-4">
               <DialogTitle className="text-2xl font-semibold text-gray-800">
                 {isNewEvent ? "Add New Event" : "Edit Event"}

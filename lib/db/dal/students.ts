@@ -138,14 +138,7 @@ export const deleteStudent = async (id: string) => {
 }
 
 
-export const studentServerService: StudentServerService = {
-  fetchStudents: getStudents,
-  fetchStudentById: getStudentById,
-  fetchStudentsByClass: getStudentsByClass,
-  createStudent: createStudent,
-  updateStudent: updateStudent,
-  deleteStudent: deleteStudent,
-}
+
 
   
 
