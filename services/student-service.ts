@@ -6,9 +6,14 @@ import { URL } from 'url'
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 import { StudentService } from "@/types/services"
+<<<<<<< HEAD
 import { Student, StudentCreateInput, StudentUpdateInput } from "@/types/entities"
 import { toUrl } from '@/lib/utils'
 import { fileExportService } from './import-export-service'
+=======
+import { StudentCreateInput, StudentUpdateInput } from "@/types/entities"
+import { toUrl } from '@/lib/utils'
+>>>>>>> 2f69deac4efb7941a4a0c04648c119e963a7504b
 
 export const studentKeys = {
   all: ["students"] as const,
@@ -91,7 +96,10 @@ export const studentClientService: StudentService = {
     fetchStudents: (teacherId: string) => {
       return toUrl(studentClientService.baseRoute, { teacherId })
     },
+<<<<<<< HEAD
  
+=======
+>>>>>>> 2f69deac4efb7941a4a0c04648c119e963a7504b
     fetchStudentById: (id: string) => {
       return toUrl(studentClientService.baseRoute, { id })
     },
@@ -99,8 +107,13 @@ export const studentClientService: StudentService = {
       return toUrl(studentClientService.baseRoute, { classId })
     },
     createStudent: () => toUrl(studentClientService.baseRoute),
+<<<<<<< HEAD
     updateStudent: (id: string) => toUrl(`${studentClientService.baseRoute}/${id}`),
     deleteStudent: (id: string) => toUrl(`${studentClientService.baseRoute}/${id}`),
+=======
+    updateStudent: (id: string) => toUrl(studentClientService.baseRoute, { id }),
+    deleteStudent: (id: string) => toUrl(studentClientService.baseRoute, { id }),
+>>>>>>> 2f69deac4efb7941a4a0c04648c119e963a7504b
   },
   fetchStudents: async (teacherId: string) => {
     const res = await fetch(studentClientService.routes.fetchStudents(teacherId))
@@ -148,6 +161,7 @@ export const studentClientService: StudentService = {
     if (!res.ok) throw new Error("Failed to delete student")
     return res.json()
   },
+<<<<<<< HEAD
   exportStudents: async (teacherId: string) => {
     const res = await fetch(studentClientService.routes.fetchStudents(teacherId))
     const data = await res.json()
@@ -170,3 +184,6 @@ export const studentClientService: StudentService = {
 } 
 
 
+=======
+} 
+>>>>>>> 2f69deac4efb7941a4a0c04648c119e963a7504b

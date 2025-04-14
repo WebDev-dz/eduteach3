@@ -128,7 +128,10 @@
     "tailwindcss-animate": "^1.0.7",
     "uuid": "latest",
     "vaul": "^0.9.6",
+<<<<<<< HEAD
     "xlsx": "^0.18.5",
+=======
+>>>>>>> 2f69deac4efb7941a4a0c04648c119e963a7504b
     "y-websocket": "^1.5.4",
     "yjs": ">=13.5.42",
     "zod": "latest"

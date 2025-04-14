@@ -90,6 +90,7 @@ export default function StudentsPage() {
 
   return (
     <>
+<<<<<<< HEAD
       <SiteHeader title="Students" />
       <div className="flex flex-1 flex-col p-4 md:p-6 gap-4">
         <div className="flex items-center justify-between">
@@ -99,6 +100,17 @@ export default function StudentsPage() {
             Add Student
           </Button>
         </div>
+=======
+        <SiteHeader title="Students" />
+        <div className="flex flex-1 flex-col p-4 md:p-6 gap-4">
+          <div className="flex items-center justify-between">
+            <h1 className="text-2xl font-bold">Students</h1>
+            <Button onClick={() => router.push("/students/create")}>
+              <UserPlusIcon className="mr-2 h-4 w-4" />
+              Add Student
+            </Button>
+          </div>
+>>>>>>> 2f69deac4efb7941a4a0c04648c119e963a7504b
 
         <Card>
           <CardContent className="p-4">
@@ -289,9 +301,14 @@ export default function StudentsPage() {
             </TableBody>
           </Table>
         </div>
+<<<<<<< HEAD
       </div>
     </>
   );
+=======
+      </>
+  )
+>>>>>>> 2f69deac4efb7941a4a0c04648c119e963a7504b
 }
 
 function getInitials(name: string): string {

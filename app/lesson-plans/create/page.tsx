@@ -105,6 +105,7 @@ export default function CreateLessonPlanPage() {
 
   return (
     <>
+<<<<<<< HEAD
       <SiteHeader title={editId ? "Edit Lesson Plan" : "Create Lesson Plan"} />
       <div className="flex flex-1 flex-col p-4 md:p-6 gap-4">
         <div className="flex items-center gap-2">
@@ -115,6 +116,16 @@ export default function CreateLessonPlanPage() {
             {editId ? "Edit Lesson Plan" : "Create Lesson Plan"}
           </h1>
         </div>
+=======
+        <SiteHeader title={editId ? "Edit Lesson Plan" : "Create Lesson Plan"} />
+        <div className="flex flex-1 flex-col p-4 md:p-6 gap-4">
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="icon" onClick={() => router.back()}>
+              <ArrowLeftIcon className="h-4 w-4" />
+            </Button>
+            <h1 className="text-2xl font-bold">{editId ? "Edit Lesson Plan" : "Create Lesson Plan"}</h1>
+          </div>
+>>>>>>> 2f69deac4efb7941a4a0c04648c119e963a7504b
 
         <Card className="max-w-4xl mx-auto">
           <Form {...form}>
@@ -535,9 +546,16 @@ export default function CreateLessonPlanPage() {
                 </div>
               </CardFooter>
             </form>
+<<<<<<< HEAD
           </Form>
         </Card>
       </div>
     </>
   );
+=======
+          </Card>
+        </div>
+      </>
+  )
+>>>>>>> 2f69deac4efb7941a4a0c04648c119e963a7504b
 }

@@ -45,8 +45,11 @@ export interface StudentService {
     | "createStudent"
     | "updateStudent"
     | "deleteStudent"
+<<<<<<< HEAD
     // | "exportStudents"
     // | "importStudents"
+=======
+>>>>>>> 2f69deac4efb7941a4a0c04648c119e963a7504b
   >;
   fetchStudents: (teacherId: string) => Promise<StudentData[]>;
   fetchStudentById: (id: string) => Promise<Student>;
@@ -54,6 +57,7 @@ export interface StudentService {
   createStudent: (data: StudentCreateInput) => Promise<{ id: string }>;
   updateStudent: (data: StudentUpdateInput) => Promise<{ id: string }>;
   deleteStudent: (id: string) => Promise<{ success: boolean }>;
+<<<<<<< HEAD
   exportStudents: (teacherId: string) => Promise<Blob | string>;
   importStudents: (
     file: File,
@@ -62,6 +66,11 @@ export interface StudentService {
 }
 
 export type StudentServerService = Omit<StudentService,"routes" | "baseRoute", "exportStudents", "importStudents">;
+=======
+}
+
+export type StudentServerService = Omit<StudentService,"routes" | "baseRoute">;
+>>>>>>> 2f69deac4efb7941a4a0c04648c119e963a7504b
 
 export interface StudentHooks {
   useStudents: (
@@ -84,12 +93,15 @@ export interface StudentHooks {
     Error,
     string
   >;
+<<<<<<< HEAD
   useExportStudents: () => UseMutationResult<Blob, Error, { teacherId: string }>;
   useImportStudents: () => UseMutationResult<
     { success: boolean; count: number },
     Error,
     { file: File; format: "csv" | "excel" }
   >;
+=======
+>>>>>>> 2f69deac4efb7941a4a0c04648c119e963a7504b
 }
 
 // ==========================================
@@ -110,8 +122,11 @@ export interface ClassService {
     | "deleteClass"
     | "addStudentToClass"
     | "removeStudentFromClass"
+<<<<<<< HEAD
     // | "importClasses"
     // | "exportClasses"
+=======
+>>>>>>> 2f69deac4efb7941a4a0c04648c119e963a7504b
   >;
   fetchClasses: (teacherId: string) => Promise<ClassWithStudentCount[]>;
   fetchClassById: (id: string) => Promise<Class>;
@@ -119,6 +134,7 @@ export interface ClassService {
   createClass: (data: ClassCreateInput) => Promise<{ id: string }>;
   updateClass: (data: ClassUpdateInput) => Promise<{ id: string }>;
   deleteClass: (id: string) => Promise<{ success: boolean }>;
+<<<<<<< HEAD
   // 🔁 Import/Export
   exportClasses: (data: Class[],
     options: { format: "csv" | "excel" }) => Promise<Blob | string>; // CSV or Excel Blob
@@ -126,6 +142,8 @@ export interface ClassService {
     file: File,
     options: { format: "csv" | "excel" }
   ) => Promise<Class[]>;
+=======
+>>>>>>> 2f69deac4efb7941a4a0c04648c119e963a7504b
   addStudentToClass: (params: {
     classId: string;
     studentId: string;
@@ -136,7 +154,11 @@ export interface ClassService {
   }) => Promise<{ success: boolean }>;
 }
 
+<<<<<<< HEAD
 export type ClassServerService = Omit<ClassService, "routes" | "baseRoute" | "exportClasses" | "importClasses">;
+=======
+export type ClassServerService = Omit<ClassService, "routes" | "baseRoute">;
+>>>>>>> 2f69deac4efb7941a4a0c04648c119e963a7504b
 
 export interface ClassHooks {
   useClasses: (
@@ -167,12 +189,15 @@ export interface ClassHooks {
     Error,
     { classId: string; studentId: string }
   >;
+<<<<<<< HEAD
   useExportClasses: () => UseMutationResult<Blob, Error, { teacherId: string }>;
   useImportClasses: () => UseMutationResult<
     { success: boolean; count: number },
     Error,
     { file: File; format: "csv" | "excel" }
   >;
+=======
+>>>>>>> 2f69deac4efb7941a4a0c04648c119e963a7504b
 }
 
 // ==========================================
@@ -330,12 +355,15 @@ export interface AssignmentHooks {
     Error,
     string
   >;
+<<<<<<< HEAD
   useExportAssignments: () => UseMutationResult<Blob, Error, { teacherId: string }>;
   useImportAssignments: () => UseMutationResult<
     { success: boolean; count: number },
     Error,
     { file: File; format: "csv" | "excel" }
   >;
+=======
+>>>>>>> 2f69deac4efb7941a4a0c04648c119e963a7504b
 }
 
 // ==========================================
@@ -423,8 +451,11 @@ export interface LessonPlanService {
     | "createLessonPlan"
     | "updateLessonPlan"
     | "deleteLessonPlan"
+<<<<<<< HEAD
     // | "exportLessonPlans"
     // | "importLessonPlans"
+=======
+>>>>>>> 2f69deac4efb7941a4a0c04648c119e963a7504b
   >;
   fetchLessonPlans: (teacherId: string) => Promise<LessonPlan[]>;
   fetchLessonPlanById: (id: string) => Promise<LessonPlan>;
@@ -432,6 +463,7 @@ export interface LessonPlanService {
   createLessonPlan: (data: LessonPlanCreateInput) => Promise<{ id: string }>;
   updateLessonPlan: (data: LessonPlanUpdateInput) => Promise<{ id: string }>;
   deleteLessonPlan: (id: string) => Promise<{ success: boolean }>;
+<<<<<<< HEAD
   // 🔁 Import/Export
   exportLessonPlans: (data: LessonPlan[],options: { format: "csv" | "excel" }) => Promise<Blob | string>; // CSV or Excel Blob
   importLessonPlans: (
@@ -444,6 +476,21 @@ export type LessonPlanServerService = Omit<
   LessonPlanService,
   "baseRoute" | "routes" | "exportLessonPlans" | "importLessonPlans"
 >;
+=======
+}
+
+export interface LessonPlanServerService {
+  getLessonPlans: (teacherId: string) => Promise<LessonPlan[]>;
+  getLessonPlanById: (id: string) => Promise<LessonPlan>;
+  getLessonPlansByClass: (classId: string) => Promise<LessonPlan[]>;
+  createLessonPlan: (data: LessonPlanCreateInput) => Promise<{ id: string }>;
+  updateLessonPlan: (data: LessonPlanUpdateInput) => Promise<{ id: string }>;
+  deleteLessonPlan: (
+    id: string,
+    teacherId: string
+  ) => Promise<{ success: boolean }>;
+}
+>>>>>>> 2f69deac4efb7941a4a0c04648c119e963a7504b
 
 export interface LessonPlanHooks {
   useLessonPlans: (
@@ -468,12 +515,15 @@ export interface LessonPlanHooks {
     Error,
     string
   >;
+<<<<<<< HEAD
   useExportLessonPlans: () => UseMutationResult<Blob, Error, { teacherId: string }>;
   useImportLessonPlans: () => UseMutationResult<
     { success: boolean; count: number },
     Error,
     { file: File; format: "csv" | "excel" }
   >;
+=======
+>>>>>>> 2f69deac4efb7941a4a0c04648c119e963a7504b
 }
 
 // ==========================================
@@ -493,6 +543,122 @@ export interface SubscriptionService {
     userId: string,
     priceId: string
   ) => Promise<Subscription>;
+<<<<<<< HEAD
+=======
+}
+
+// ==========================================
+// Calendarl Event Types
+// ==========================================
+
+export type CalendarEvent = typeof calendarEvents.$inferSelect;
+
+export interface CalendarEventService {
+  baseRoute: string;
+  routes: ServiceRoutes<
+    | "fetchCalendarEvents"
+    | "fetchCalendarEventById"
+    | "fetchCalendarEventsByClass"
+    | "createCalendarEvent"
+    | "updateCalendarEvent"
+    | "deleteCalendarEvent"
+  >;
+  fetchCalendarEvents: (teacherId: string, startDate?: Date, endDate?: Date) => Promise<CalendarEvent[]>;
+  fetchCalendarEventById: (id: string) => Promise<CalendarEvent>;
+  fetchCalendarEventsByClass: (classId: string) => Promise<CalendarEvent[]>;
+  createCalendarEvent: (
+    data: CalendarEventCreateInput
+  ) => Promise<{ id: string }>;
+  updateCalendarEvent: (
+    data: CalendarEventUpdateInput
+  ) => Promise<CalendarEvent[]>;
+  deleteCalendarEvent: (id: string) => Promise<{ success: boolean }>;
+}
+
+export type CalendarEventServerService = Omit<CalendarEventService, "routes" | "baseRoute">
+
+export interface CalendarEventHooks {
+  useCalendarEvents: (
+    teacherId: string | undefined
+  ) => UseQueryResult<CalendarEvent[], Error>;
+  useCalendarEvent: (id: string) => UseQueryResult<CalendarEvent, Error>;
+  useCalendarEventsByClass: (
+    classId: string
+  ) => UseQueryResult<CalendarEvent[], Error>;
+  useCreateCalendarEvent: () => UseMutationResult<
+    { id: string },
+    Error,
+    CalendarEventCreateInput
+  >;
+  useUpdateCalendarEvent: () => UseMutationResult<
+    { id: string },
+    Error,
+    CalendarEventUpdateInput
+  >;
+  useDeleteCalendarEvent: () => UseMutationResult<
+    { success: boolean },
+    Error,
+    string
+  >;
+}
+
+// Storage Service Types
+interface FileUploadResult {
+  url: string
+  key: string
+}
+
+interface FileListItem {
+  name: string
+  url: string
+  key: string
+  size: number
+  createdAt: string
+}
+
+interface StorageService {
+  initializeUserStorage(userId: string): Promise<boolean>
+  ensureAvatarsBucket(): Promise<boolean>
+  uploadUserFile(userId: string, file: File, path?: string): Promise<FileUploadResult | null>
+  uploadAvatar(userId: string, file: File): Promise<FileUploadResult | null>
+  deleteUserFile(userId: string, fileKey: string): Promise<boolean>
+  deleteAvatar(fileKey: string): Promise<boolean>
+  listUserFiles(userId: string, path?: string): Promise<FileListItem[] | null>
+  getSignedUrl(userId: string, fileKey: string, expiresIn?: number): Promise<string | null>
+}
+
+export interface StorageServerService extends StorageService {}
+
+export interface StorageHooks {
+  useStorage: () => UseQueryResult<StorageService, Error>
+}
+
+
+
+
+type User = Omit<typeof users.$inferSelect, "passwordHash">
+type UserCreateInput = Pick<typeof users.$inferInsert, "email" | "firstName" | "lastName"  | "role"> & { password: string }
+type UserUpdateInput = Partial<typeof users.$inferSelect>
+
+export interface UserService {
+  baseRoute: string;
+  routes: ServiceRoutes<"fetchUsers" | "fetchUserById" | "signup" | "updateUser" | "deleteUser">;
+  fetchUsers: () => Promise<User[]>;
+  fetchUserById: (id: string) => Promise<User>;
+  signup: (data: UserCreateInput) => Promise<{ id: string }>;
+  updateUser: (data: UserUpdateInput) => Promise<{ id: string }>;
+  deleteUser: (id: string) => Promise<{ success: boolean }>;
+}
+
+export interface UserServerService extends UserService {}
+
+export interface UserHooks {
+  useUsers: () => UseQueryResult<User[], Error>;
+  useUser: (id: string) => UseQueryResult<User, Error>;
+  useSignup: () => UseMutationResult<{ id: string }, Error, UserCreateInput>;
+  useUpdateUser: () => UseMutationResult<{ id: string }, Error, UserUpdateInput>;
+  useDeleteUser: () => UseMutationResult<{ success: boolean }, Error, string>;
+>>>>>>> 2f69deac4efb7941a4a0c04648c119e963a7504b
 }
 
 // ==========================================

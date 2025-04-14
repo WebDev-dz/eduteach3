@@ -4,10 +4,17 @@ import { SectionCards } from "../../components/section-cards";
 import { SiteHeader } from "../../components/site-header";
 import { SubscriptionStatus } from "@/components/subscription-status";
 import { getCurrentUser } from "@/lib/auth/auth";
+<<<<<<< HEAD
 import { redirect } from "next/navigation";
 
 import data from "./data.json";
 import { getUserSubscription } from "@/lib/db/dal/subscription";
+=======
+import { getUserSubscription } from "@/lib/subscription/subscription-service";
+import { redirect } from "next/navigation";
+
+import data from "./data.json";
+>>>>>>> 2f69deac4efb7941a4a0c04648c119e963a7504b
 
 export default async function Page() {
   const user = await getCurrentUser();

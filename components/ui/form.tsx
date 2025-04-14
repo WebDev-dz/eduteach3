@@ -22,6 +22,7 @@ type FormFieldContextValue<
   TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>
 > = {
   name: TName
+  isReadonly?: boolean
 }
 
 const FormFieldContext = React.createContext<FormFieldContextValue>(
@@ -32,10 +33,11 @@ const FormField = <
   TFieldValues extends FieldValues = FieldValues,
   TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>
 >({
+  isReadonly = false,
   ...props
-}: ControllerProps<TFieldValues, TName>) => {
+}: ControllerProps<TFieldValues, TName> & { isReadonly?: boolean }) => {
   return (
-    <FormFieldContext.Provider value={{ name: props.name }}>
+    <FormFieldContext.Provider value={{ name: props.name, isReadonly }}>
       <Controller {...props} />
     </FormFieldContext.Provider>
   )
@@ -58,6 +60,7 @@ const useFormField = () => {
     id,
     name: fieldContext.name,
     formItemId: `${id}-form-item`,
+    isReadonly: fieldContext.isReadonly,
     formDescriptionId: `${id}-form-item-description`,
     formMessageId: `${id}-form-item-message`,
     ...fieldState,
@@ -146,10 +149,10 @@ const FormMessage = React.forwardRef<
   HTMLParagraphElement,
   React.HTMLAttributes<HTMLParagraphElement>
 >(({ className, children, ...props }, ref) => {
-  const { error, formMessageId } = useFormField()
+  const { error, formMessageId, isReadonly } = useFormField()
   const body = error ? String(error?.message) : children
 
-  if (!body) {
+  if (!body || isReadonly ) {
     return null
   }
 

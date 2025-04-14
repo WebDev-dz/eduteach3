@@ -4,9 +4,14 @@ import { toast } from "sonner"
 import {
   ClassService,
 } from "@/types/services"
+<<<<<<< HEAD
 import { Class, ClassCreateInput, ClassUpdateInput } from "@/types/entities"
 import { toUrl } from "@/lib/utils"
 import { fileExportService } from "./import-export-service"
+=======
+import { ClassCreateInput, ClassUpdateInput } from "@/types/entities"
+import { toUrl } from "@/lib/utils"
+>>>>>>> 2f69deac4efb7941a4a0c04648c119e963a7504b
 
 
 export const classKeys = {
@@ -188,6 +193,7 @@ export const classClientService: ClassService = {
     })
     if (!res.ok) throw new Error("Failed to remove student from class")
     return res.json()
+<<<<<<< HEAD
   },
   exportClasses: async (data: Class[], { format }: { format: "csv" | "excel" }) => {
     switch (format) {
@@ -208,5 +214,7 @@ export const classClientService: ClassService = {
       default:
         throw new Error("Invalid format")
     }
+=======
+>>>>>>> 2f69deac4efb7941a4a0c04648c119e963a7504b
   },
 }
