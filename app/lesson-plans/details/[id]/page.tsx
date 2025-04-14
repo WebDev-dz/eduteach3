@@ -45,9 +45,7 @@ export default function LessonPlanDetailsPage() {
   }
 
   return (
-    <SidebarProvider>
-      <AppSidebar variant="inset" />
-      <SidebarInset>
+    <>
         <SiteHeader title="Lesson Plan Details" />
         <div className="flex flex-1 flex-col p-4 md:p-6 gap-4">
           <div className="flex items-center gap-2">
@@ -240,8 +238,7 @@ export default function LessonPlanDetailsPage() {
             </TabsContent>
           </Tabs>
         </div>
-      </SidebarInset>
-    </SidebarProvider>
+      </>
   )
 }
 

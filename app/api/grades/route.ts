@@ -1,6 +1,21 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { getGradesByClass, calculateGradeDistribution, createGrade, createBulkGrades } from "@/lib/db/dal/grades"
 import { getCurrentUser } from "@/lib/auth/auth"
+import { createBulkGrades, createGrade, getGradesByClass } from "@/lib/db/dal/grades"
+import { z } from "zod"
+import { checkRequests } from "@/lib/utils"
+
+
+
+
+
+// Define the search params schema with Zod
+const gradeSearchParamsSchema = z.object({
+  classId: z.string().min(1, "Class ID is required"),
+  subject: z.string().optional(),
+  distribution: z.enum(["true", "false"]).optional().transform(val => val === "true")
+})
+
+
 
 export async function GET(request: NextRequest) {
   try {
@@ -8,16 +23,16 @@ export async function GET(request: NextRequest) {
     if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
-
+    
     const searchParams = request.nextUrl.searchParams
-    const classId = searchParams.get("classId")
-    const subject = searchParams.get("subject")
-    const distribution = searchParams.get("distribution") === "true"
-
-    if (!classId) {
-      return NextResponse.json({ error: "Class ID is required" }, { status: 400 })
+    const validation = checkRequests(searchParams, gradeSearchParamsSchema)
+    
+    if (!validation.success) {
+      return NextResponse.json({ error: validation.error }, { status: 400 })
     }
-
+    
+    const { classId, subject, distribution } = validation.data
+    
     if (distribution) {
       const data = await calculateGradeDistribution(classId, user.id)
       return NextResponse.json(data)
@@ -25,7 +40,7 @@ export async function GET(request: NextRequest) {
       if (!subject) {
         return NextResponse.json({ error: "Subject is required" }, { status: 400 })
       }
-      const grades = await getGradesByClass(classId, subject, user.id)
+      const grades = await getGradesByClass(classId)
       return NextResponse.json(grades)
     }
   } catch (error) {

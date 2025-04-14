@@ -10,12 +10,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { PlusIcon, UsersIcon, BookOpenIcon, ClockIcon, MoreHorizontalIcon, Pencil, Trash2 } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useSession } from "next-auth/react"
-import type { ClassWithStudentCount } from "@/lib/db/dal/classes"
 import { Skeleton } from "@/components/ui/skeleton"
 import { DeleteDialog } from "@/components/delete-dialog"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { toast } from "sonner"
 import { useClasses, useDeleteClass } from "@/services/class-service"
+import { ClassWithStudentCount } from "@/types/entities"
+import Link from "next/link"
 
 export default function ClassesPage() {
   const router = useRouter()
@@ -47,10 +48,8 @@ export default function ClassesPage() {
   }, [isError])
 
   return (
-    <SidebarProvider>
-      <AppSidebar variant="inset" />
-      <SidebarInset>
-        <SiteHeader title="Classes" />
+    <>
+      <SiteHeader title="Classes" />
         <div className="flex flex-1 flex-col p-4 md:p-6 gap-4">
           <div className="flex items-center justify-between">
             <h1 className="text-2xl font-bold">My Classes</h1>
@@ -151,8 +150,7 @@ export default function ClassesPage() {
             </TabsContent>
           </Tabs>
         </div>
-      </SidebarInset>
-    </SidebarProvider>
+      </>
   )
 }
 
@@ -169,8 +167,10 @@ function ClassCard({ classItem, onDelete, onEdit, isDeleting }: ClassCardProps) 
       <CardHeader className="pb-2">
         <div className="flex justify-between items-start">
           <div>
-            <CardTitle>{classItem.name}</CardTitle>
-            <CardDescription>{classItem.subject}</CardDescription>
+            <Link href={`/classes/${classItem.id}`}>
+              <CardTitle>{classItem.name}</CardTitle>
+              <CardDescription>{classItem.subject}</CardDescription>
+            </Link>
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -187,7 +187,7 @@ function ClassCard({ classItem, onDelete, onEdit, isDeleting }: ClassCardProps) 
               <DeleteDialog
                 title="Delete Class"
                 description="Are you sure you want to delete this class? This action cannot be undone."
-                onDelete={() => onDelete(classItem.id)}
+                onDelete={async () => onDelete(classItem.id)}
                 trigger={
                   <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
                     <Trash2 className="mr-2 h-4 w-4" />

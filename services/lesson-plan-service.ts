@@ -1,8 +1,17 @@
+// @/services/assignment-service
+"use client"
+
+import { URL } from 'url'
+
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
-import type { LessonPlanCreateInput, LessonPlanUpdateInput } from "@/lib/db/dal/lesson-plans"
+import { LessonPlanService } from "@/types/services"
+import { LessonPlan, LessonPlanCreateInput, LessonPlanUpdateInput } from "@/types/entities"
+import { toUrl } from '@/lib/utils'
+import { fileExportService } from './import-export-service'
 
-// Query keys
+
+
 export const lessonPlanKeys = {
   all: ["lessonPlans"] as const,
   lists: () => [...lessonPlanKeys.all, "list"] as const,
@@ -12,25 +21,6 @@ export const lessonPlanKeys = {
   class: (classId: string) => [...lessonPlanKeys.all, "class", classId] as const,
 }
 
-export interface LessonPlanService {
-  baseRoute: string
-  routes: {
-    fetchLessonPlans: string
-    fetchLessonPlanById: string
-    fetchLessonPlansByClass: string
-    createLessonPlan: string
-    updateLessonPlan: string
-    deleteLessonPlan: string
-  }
-  fetchLessonPlans: (teacherId: string) => Promise<any[]>
-  fetchLessonPlanById: (id: string) => Promise<any>
-  fetchLessonPlansByClass: (classId: string) => Promise<any[]>
-  createLessonPlan: (data: LessonPlanCreateInput) => Promise<any>
-  updateLessonPlan: (data: LessonPlanUpdateInput) => Promise<any>
-  deleteLessonPlan: (id: string) => Promise<any>
-}
-
-// Hooks
 export function useLessonPlans(teacherId: string | undefined) {
   return useQuery({
     queryKey: lessonPlanKeys.list({ teacherId }),
@@ -57,18 +47,10 @@ export function useLessonPlansByClass(classId: string) {
 
 export function useCreateLessonPlan() {
   const queryClient = useQueryClient()
-
   return useMutation({
     mutationFn: lessonPlanClientService.createLessonPlan,
-    onSuccess: (data, variables) => {
-      // Invalidate the lesson plans list query
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: lessonPlanKeys.lists() })
-      // Invalidate the class-specific lesson plans query
-      if (variables.classId) {
-        queryClient.invalidateQueries({
-          queryKey: lessonPlanKeys.class(variables.classId),
-        })
-      }
       toast.success("Lesson plan created successfully")
     },
     onError: (error: Error) => {
@@ -79,21 +61,10 @@ export function useCreateLessonPlan() {
 
 export function useUpdateLessonPlan() {
   const queryClient = useQueryClient()
-
   return useMutation({
     mutationFn: lessonPlanClientService.updateLessonPlan,
     onSuccess: (data, variables) => {
-      // Invalidate both the list and the specific lesson plan detail
-      queryClient.invalidateQueries({ queryKey: lessonPlanKeys.lists() })
-      queryClient.invalidateQueries({
-        queryKey: lessonPlanKeys.detail(variables.id),
-      })
-      // Invalidate the class-specific lesson plans query if classId is provided
-      if (variables.classId) {
-        queryClient.invalidateQueries({
-          queryKey: lessonPlanKeys.class(variables.classId),
-        })
-      }
+      queryClient.invalidateQueries({ queryKey: lessonPlanKeys.detail(variables.id) })
       toast.success("Lesson plan updated successfully")
     },
     onError: (error: Error) => {
@@ -104,11 +75,9 @@ export function useUpdateLessonPlan() {
 
 export function useDeleteLessonPlan() {
   const queryClient = useQueryClient()
-
   return useMutation({
     mutationFn: lessonPlanClientService.deleteLessonPlan,
-    onSuccess: (data, variables) => {
-      // Invalidate the lesson plans list query
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: lessonPlanKeys.lists() })
       toast.success("Lesson plan deleted successfully")
     },
@@ -121,90 +90,83 @@ export function useDeleteLessonPlan() {
 export const lessonPlanClientService: LessonPlanService = {
   baseRoute: "/api/lesson-plans",
   routes: {
-    fetchLessonPlans: "/",
-    fetchLessonPlanById: "/",
-    fetchLessonPlansByClass: "/by-class",
-    createLessonPlan: "/",
-    updateLessonPlan: "/",
-    deleteLessonPlan: "/",
+    fetchLessonPlans: (teacherId: string) => {
+      return toUrl(lessonPlanClientService.baseRoute, { teacherId })
+    },
+    fetchLessonPlanById: (id: string) => {
+      return toUrl(lessonPlanClientService.baseRoute, { id })
+    },
+    fetchLessonPlansByClass: (classId: string) => {
+      return toUrl(lessonPlanClientService.baseRoute, { classId })
+    },
+    createLessonPlan: () => toUrl(lessonPlanClientService.baseRoute),
+    updateLessonPlan: (id: string) => toUrl(lessonPlanClientService.baseRoute, { id }),
+    deleteLessonPlan: (id: string) => toUrl(lessonPlanClientService.baseRoute, { id }),
   },
   fetchLessonPlans: async (teacherId: string) => {
-    const response = await fetch(
-      `${lessonPlanClientService.baseRoute}${lessonPlanClientService.routes.fetchLessonPlans}?teacherId=${teacherId}`,
-    )
-    if (!response.ok) {
-      throw new Error("Failed to fetch lesson plans")
-    }
-    return response.json()
+    const res = await fetch(lessonPlanClientService.routes.fetchLessonPlans(teacherId))
+    if (!res.ok) throw new Error("Failed to fetch lesson plans")
+    return res.json()
   },
   fetchLessonPlanById: async (id: string) => {
-    const response = await fetch(
-      `${lessonPlanClientService.baseRoute}${lessonPlanClientService.routes.fetchLessonPlanById}/${id}`,
-    )
-    if (!response.ok) {
-      throw new Error("Failed to fetch lesson plan")
-    }
-    return response.json()
+    const res = await fetch(lessonPlanClientService.routes.fetchLessonPlanById(id))
+    if (!res.ok) throw new Error("Failed to fetch lesson plan")
+    return res.json()
   },
   fetchLessonPlansByClass: async (classId: string) => {
-    const response = await fetch(
-      `${lessonPlanClientService.baseRoute}${lessonPlanClientService.routes.fetchLessonPlansByClass}?classId=${classId}`,
-    )
-    if (!response.ok) {
-      throw new Error("Failed to fetch lesson plans for class")
-    }
-    return response.json()
+    const res = await fetch(lessonPlanClientService.routes.fetchLessonPlansByClass(classId))
+    if (!res.ok) throw new Error("Failed to fetch lesson plans by class")
+    return res.json()
   },
   createLessonPlan: async (data: LessonPlanCreateInput) => {
-    const response = await fetch(
-      `${lessonPlanClientService.baseRoute}${lessonPlanClientService.routes.createLessonPlan}`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      },
-    )
-
-    if (!response.ok) {
-      const error = await response.json()
-      throw new Error(error.error || "Failed to create lesson plan")
+    const res = await fetch(lessonPlanClientService.routes.createLessonPlan(undefined), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    })
+    if (!res.ok) {
+      const err = await res.json()
+      throw new Error(err.error || "Failed to create lesson plan")
     }
-
-    return response.json()
+    return res.json()
   },
   updateLessonPlan: async (data: LessonPlanUpdateInput) => {
-    const response = await fetch(
-      `${lessonPlanClientService.baseRoute}${lessonPlanClientService.routes.updateLessonPlan}/${data.id}`,
-      {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      },
-    )
-
-    if (!response.ok) {
-      const error = await response.json()
-      throw new Error(error.error || "Failed to update lesson plan")
+    const res = await fetch(`${lessonPlanClientService.routes.updateLessonPlan(undefined)}/${data.id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    })
+    if (!res.ok) {
+      const err = await res.json()
+      throw new Error(err.error || "Failed to update lesson plan")
     }
-
-    return response.json()
+    return res.json()
   },
   deleteLessonPlan: async (id: string) => {
-    const response = await fetch(
-      `${lessonPlanClientService.baseRoute}${lessonPlanClientService.routes.deleteLessonPlan}/${id}`,
-      {
-        method: "DELETE",
-      },
-    )
-
-    if (!response.ok) {
-      throw new Error("Failed to delete lesson plan")
-    }
-
-    return response.json()
+    const res = await fetch(lessonPlanClientService.routes.deleteLessonPlan(id), {
+      method: "DELETE",
+    })
+    if (!res.ok) throw new Error("Failed to delete lesson plan")
+    return res.json()
   },
+  importLessonPlans: async (file: File, {format}) => {
+    switch (format) {
+      case "csv":
+        return fileExportService.fromCsv<LessonPlan>(file)
+      case "excel":
+        return fileExportService.fromExcel<LessonPlan>(file)
+      default:
+        throw new Error("Invalid format")
+    }
+  },
+  exportLessonPlans: async(data: LessonPlan[], {format}: {format: "csv" | "excel"}) => {
+    switch (format) {
+      case "csv":
+        return fileExportService.toCsv<LessonPlan>(data)
+      case "excel":
+        return fileExportService.toExcel<LessonPlan>(data)
+      default:
+        throw new Error("Invalid format")
+    }
+  }
 }

@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { getCurrentUser } from "@/lib/auth/auth"
-import { getUserSubscription } from "@/lib/subscription/subscription-service"
+import { getUserSubscription } from "@/lib/db/dal/subscription"
 
 export async function GET(req: NextRequest) {
   try {

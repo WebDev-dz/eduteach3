@@ -10,7 +10,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
     }
 
     const studentId = params.id
-    const student = await getStudentById(studentId, user.id)
+    const student = await getStudentById(studentId)
 
     if (!student) {
       return NextResponse.json({ error: "Student not found" }, { status: 404 })
@@ -59,7 +59,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
     }
 
     const studentId = params.id
-    const result = await deleteStudent(studentId, user.id)
+    const result = await deleteStudent(studentId)
     return NextResponse.json(result)
   } catch (error) {
     console.error("Error deleting student:", error)

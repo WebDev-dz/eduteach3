@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { CheckIcon, AlertCircleIcon } from "lucide-react"
-import { PLANS } from "@/lib/subscription/plans"
+import { PLANS } from "@/lib/db/dal/plans"
 import { AppSidebar } from "@/components/app-sidebar"
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 import { SiteHeader } from "@/components/site-header"
@@ -86,9 +86,7 @@ export default function UpgradePage() {
   }
 
   return (
-    <SidebarProvider>
-      <AppSidebar variant="inset" />
-      <SidebarInset>
+    <>
         <SiteHeader title="Upgrade Your Plan" />
         <div className="flex flex-1 flex-col p-4 md:p-6 gap-4">
           <div className="flex flex-col items-center justify-center space-y-4 text-center max-w-3xl mx-auto">
@@ -255,8 +253,7 @@ export default function UpgradePage() {
             </Tabs>
           </div>
         </div>
-      </SidebarInset>
-    </SidebarProvider>
+      </>
   )
 }
 

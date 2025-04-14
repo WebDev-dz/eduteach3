@@ -1,7 +1,7 @@
 import { db } from "@/lib/db"
 import { subscriptions, classes, students } from "@/lib/db/schema"
 import { eq, count } from "drizzle-orm"
-import { type PLANS, hasFeatureAccess, getMaxAllowed } from "@/lib/subscription/plans"
+import { type PLANS, hasFeatureAccess, getMaxAllowed } from "@/lib/db/dal/plans"
 import type { Session } from "next-auth"
 
 // Check if user has access to a specific feature

@@ -69,9 +69,7 @@ export default function GradesPage() {
   const selectedSubjectName = selectedClassObj?.subject || ""
 
   return (
-    <SidebarProvider>
-      <AppSidebar variant="inset" />
-      <SidebarInset>
+    <>
         <SiteHeader title="Grades" />
         <div className="flex flex-1 flex-col p-4 md:p-6 gap-4">
           <div className="flex items-center justify-between">
@@ -268,8 +266,7 @@ export default function GradesPage() {
             </Table>
           </div>
         </div>
-      </SidebarInset>
-    </SidebarProvider>
+      </>
   )
 }
 

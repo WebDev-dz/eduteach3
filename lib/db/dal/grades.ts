@@ -1,48 +1,100 @@
-import { db } from "@/lib/db"
-import { grades, students, assignments } from "@/lib/db/schema"
-import { eq, and } from "drizzle-orm"
-import { v4 as uuidv4 } from "uuid"
+"use server"
+import { db } from "@/lib/db";
+import { grades, students, assignments } from "@/lib/db/schema";
+import { eq, and, sql, getTableColumns } from "drizzle-orm";
+import { v4 as uuidv4 } from "uuid";
+import { AssignmentGrade, GradeServerService, GradeWithDetails } from "@/types/services";
+import { GradeCreateInput, GradeUpdateInput } from "@/types/entities";
 
-// Types
-export type GradeCreateInput = {
-  studentId: string
-  assignmentId: string
-  score: number
-  feedback?: string | null
-  teacherId: string
+
+export function calculateGradeDistribution(grades: { score: number; maxScore: number }[]) {
+  if (!grades.length) {
+    return {
+      average: 0,
+      median: 0,
+      min: 0,
+      max: 0,
+      distribution: {
+        A: 0,
+        B: 0,
+        C: 0,
+        D: 0,
+        F: 0
+      },
+      percentages: [] as number[]
+    };
+  }
+
+  // Calculate percentages
+  const percentages = grades.map(grade => (grade.score / grade.maxScore) * 100);
+  
+  // Sort percentages for statistical calculations
+  const sortedPercentages = [...percentages].sort((a, b) => a - b);
+  
+  // Calculate basic statistics
+  const min = sortedPercentages[0];
+  const max = sortedPercentages[sortedPercentages.length - 1];
+  const sum = sortedPercentages.reduce((acc, val) => acc + val, 0);
+  const average = sum / sortedPercentages.length;
+  
+  // Calculate median
+  const mid = Math.floor(sortedPercentages.length / 2);
+  const median = sortedPercentages.length % 2 === 0
+    ? (sortedPercentages[mid - 1] + sortedPercentages[mid]) / 2
+    : sortedPercentages[mid];
+  
+  // Calculate letter grade distribution
+  const distribution = {
+    A: 0,
+    B: 0,
+    C: 0,
+    D: 0,
+    F: 0
+  };
+  
+  percentages.forEach(percentage => {
+    if (percentage >= 90) {
+      distribution.A += 1;
+    } else if (percentage >= 80) {
+      distribution.B += 1;
+    } else if (percentage >= 70) {
+      distribution.C += 1;
+    } else if (percentage >= 60) {
+      distribution.D += 1;
+    } else {
+      distribution.F += 1;
+    }
+  });
+  
+  return {
+    average,
+    median,
+    min,
+    max,
+    distribution,
+    percentages
+  };
 }
 
-export type GradeUpdateInput = {
-  id: string
-  score?: number
-  feedback?: string | null
-  teacherId: string
-}
+/**
+ * Fetches grade data from the database and calculates distribution
+ * Can filter by class, assignment, and/or student
+ */
 
-export type GradeWithDetails = {
-  id: string
-  score: number
-  feedback: string | null
-  studentId: string
-  assignmentId: string
-  studentName: string
-  assignmentTitle: string
-  createdAt: Date
-  updatedAt: Date
-}
 
-// Server Service
-export const gradeService = {
-  getGrades: async (teacherId: string) => {
+
+
+const gradeServerService: GradeServerService = {
+  fetchGrades: async (teacherId: string) => {
     try {
       const gradesWithDetails = await db
         .select({
           id: grades.id,
           score: grades.score,
-          feedback: grades.feedback,
+          feedback: grades.comments,
           studentId: grades.studentId,
           assignmentId: grades.assignmentId,
-          studentName: db.sql`CONCAT(${students.firstName}, ' ', ${students.lastName})`,
+          studentName: sql`CONCAT(${students.firstName}, ' ', ${students.lastName})`,
           assignmentTitle: assignments.title,
           createdAt: grades.createdAt,
           updatedAt: grades.updatedAt,
@@ -50,25 +102,25 @@ export const gradeService = {
         .from(grades)
         .leftJoin(students, eq(grades.studentId, students.id))
         .leftJoin(assignments, eq(grades.assignmentId, assignments.id))
-        .where(eq(grades.teacherId, teacherId))
+        .where(eq(grades.teacherId, teacherId));
 
-      return gradesWithDetails
+      return gradesWithDetails as unknown as GradeWithDetails[];
     } catch (error) {
-      console.error("Error fetching grades:", error)
-      throw new Error("Failed to fetch grades")
+      console.error("Error fetching grades:", error);
+      throw new Error("Failed to fetch grades");
     }
   },
 
-  getGradeById: async (id: string) => {
+  fetchGradeById: async (id: string) => {
     try {
       const [grade] = await db
         .select({
           id: grades.id,
           score: grades.score,
-          feedback: grades.feedback,
+          feedback: grades.comments,
           studentId: grades.studentId,
           assignmentId: grades.assignmentId,
-          studentName: db.sql`CONCAT(${students.firstName}, ' ', ${students.lastName})`,
+          studentName: sql`CONCAT(${students.firstName}, ' ', ${students.lastName})`,
           assignmentTitle: assignments.title,
           createdAt: grades.createdAt,
           updatedAt: grades.updatedAt,
@@ -76,29 +128,73 @@ export const gradeService = {
         .from(grades)
         .leftJoin(students, eq(grades.studentId, students.id))
         .leftJoin(assignments, eq(grades.assignmentId, assignments.id))
-        .where(eq(grades.id, id))
+        .where(eq(grades.id, id));
 
       if (!grade) {
-        throw new Error("Grade not found")
+        throw new Error("Grade not found");
       }
 
-      return grade
+      return grade as unknown as GradeWithDetails;
     } catch (error) {
-      console.error("Error fetching grade:", error)
-      throw new Error("Failed to fetch grade")
+      console.error("Error fetching grade:", error);
+      throw new Error("Failed to fetch grade");
     }
   },
-
-  getGradesByStudent: async (studentId: string) => {
+  fetchGradeDistribution: async ({
+    classId,
+    assignmentId,
+    studentId
+  }: {
+    classId?: string;
+    assignmentId?: string;
+    studentId?: string;
+  }) {
+    try {
+      // Build where conditions based on provided filters
+      const whereConditions = [];
+      
+      if (classId) {
+        whereConditions.push(eq(grades.classId, classId));
+      }
+      
+      if (assignmentId) {
+        whereConditions.push(eq(grades.assignmentId, assignmentId));
+      }
+      
+      if (studentId) {
+        whereConditions.push(eq(grades.studentId, studentId));
+      }
+      
+      // Query the database
+      const gradeData = await db.select({
+        score: grades.score,
+        maxScore: grades.maxScore
+      })
+      .from(grades)
+      .where(whereConditions.length > 0 ? and(...whereConditions) : undefined);
+      
+      // Convert decimal values to numbers for calculation
+      const gradesForCalculation = gradeData.map(grade => ({
+        score: Number(grade.score),
+        maxScore: Number(grade.maxScore)
+      }));
+      
+      // Calculate the distribution
+      return calculateGradeDistribution(gradesForCalculation);
+    } catch (error) {
+      console.error("Error fetching grade distribution:", error);
+      throw new Error("Failed to calculate grade distribution");
+    }
+  },
+  
+  // @virified
+  fetchGradesByStudent: async (studentId: string) => {
+    const gradesColumns = getTableColumns(grades);
     try {
       const studentGrades = await db
         .select({
-          id: grades.id,
-          score: grades.score,
-          feedback: grades.feedback,
-          studentId: grades.studentId,
-          assignmentId: grades.assignmentId,
-          studentName: db.sql`CONCAT(${students.firstName}, ' ', ${students.lastName})`,
+          ...gradesColumns,
+          studentName: sql`CONCAT(${students.firstName}, ' ', ${students.lastName})`,
           assignmentTitle: assignments.title,
           createdAt: grades.createdAt,
           updatedAt: grades.updatedAt,
@@ -106,92 +202,84 @@ export const gradeService = {
         .from(grades)
         .leftJoin(students, eq(grades.studentId, students.id))
         .leftJoin(assignments, eq(grades.assignmentId, assignments.id))
-        .where(eq(grades.studentId, studentId))
+        .where(eq(grades.studentId, studentId));
 
-      return studentGrades
+      return studentGrades as unknown as AssignmentGrade[];
     } catch (error) {
-      console.error("Error fetching grades by student:", error)
-      throw new Error("Failed to fetch grades for student")
+      console.error("Error fetching grades by student:", error);
+      throw new Error("Failed to fetch grades for student");
     }
   },
 
-  getGradesByAssignment: async (assignmentId: string) => {
+  fetchGradesByAssignment: async (assignmentId: string) => {
+    const gradesColumns = getTableColumns(grades);
     try {
       const assignmentGrades = await db
         .select({
-          id: grades.id,
-          score: grades.score,
-          feedback: grades.feedback,
-          studentId: grades.studentId,
-          assignmentId: grades.assignmentId,
-          studentName: db.sql`CONCAT(${students.firstName}, ' ', ${students.lastName})`,
+          ...gradesColumns,
+          studentName: sql`CONCAT(${students.firstName}, ' ', ${students.lastName})`,
           assignmentTitle: assignments.title,
-          createdAt: grades.createdAt,
-          updatedAt: grades.updatedAt,
         })
         .from(grades)
         .leftJoin(students, eq(grades.studentId, students.id))
         .leftJoin(assignments, eq(grades.assignmentId, assignments.id))
-        .where(eq(grades.assignmentId, assignmentId))
+        .where(eq(grades.assignmentId, assignmentId));
 
-      return assignmentGrades
+      return assignmentGrades as AssignmentGrade[];
     } catch (error) {
-      console.error("Error fetching grades by assignment:", error)
-      throw new Error("Failed to fetch grades for assignment")
+      console.error("Error fetching grades by assignment:", error);
+      throw new Error("Failed to fetch grades for assignment");
     }
   },
 
-  getGradesByClass: async (classId: string) => {
+  fetchGradesByClass: async (classId: string) => {
+    const gradesColumns = getTableColumns(grades);
     try {
       const classGrades = await db
         .select({
-          id: grades.id,
-          score: grades.score,
-          feedback: grades.feedback,
-          studentId: grades.studentId,
-          assignmentId: grades.assignmentId,
-          studentName: db.sql`CONCAT(${students.firstName}, ' ', ${students.lastName})`,
+          ...gradesColumns,
+          studentName: sql`CONCAT(${students.firstName}, ' ', ${students.lastName})`,
           assignmentTitle: assignments.title,
-          createdAt: grades.createdAt,
-          updatedAt: grades.updatedAt,
         })
         .from(grades)
         .leftJoin(students, eq(grades.studentId, students.id))
         .leftJoin(assignments, eq(grades.assignmentId, assignments.id))
-        .where(eq(assignments.classId, classId))
+        .where(eq(assignments.classId, classId));
 
-      return classGrades
+      return classGrades as AssignmentGrade[];
     } catch (error) {
-      console.error("Error fetching grades by class:", error)
-      throw new Error("Failed to fetch grades for class")
+      console.error("Error fetching grades by class:", error);
+      throw new Error("Failed to fetch grades for class");
     }
   },
 
   createGrade: async (data: GradeCreateInput) => {
     try {
-      const id = uuidv4()
-
-      await db.insert(grades).values({
-        id,
-        studentId: data.studentId,
-        assignmentId: data.assignmentId,
-        score: data.score,
-        feedback: data.feedback || null,
-        teacherId: data.teacherId,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      })
-
-      return { id }
+      const id = uuidv4();
+      const grade = {...data, id, createdAt: new Date(), updatedAt: new Date()}
+      await db.insert(grades).values(grade);
+      return { id };
     } catch (error) {
-      console.error("Error creating grade:", error)
-      throw new Error("Failed to create grade")
+      console.error("Error creating grade:", error);
+      throw new Error("Failed to create grade");
+    }
+  },
+  createBulkGrades: async (data: GradeCreateInput[]) => {
+    try {
+      const id = uuidv4();
+      const gradesData = data.map((gr) => ({...gr, id, createdAt: new Date(), updatedAt: new Date()})) 
+      await db.insert(grades).values(gradesData);
+      return { id };
+    } catch (error) {
+      console.error("Error creating grade:", error);
+      throw new Error("Failed to create grade");
     }
   },
 
+
   updateGrade: async (data: GradeUpdateInput) => {
     try {
-      const { id, teacherId, ...updateData } = data
+      const { id, teacherId, ...updateData } = data;
 
       await db
         .update(grades)
@@ -199,23 +287,37 @@ export const gradeService = {
           ...updateData,
           updatedAt: new Date(),
         })
-        .where(and(eq(grades.id, id), eq(grades.teacherId, teacherId)))
+        .where(and(eq(grades.id, id), eq(grades.teacherId, teacherId)));
 
-      return { id }
+      return { id };
     } catch (error) {
-      console.error("Error updating grade:", error)
-      throw new Error("Failed to update grade")
+      console.error("Error updating grade:", error);
+      throw new Error("Failed to update grade");
     }
   },
 
-  deleteGrade: async (id: string, teacherId: string) => {
+  deleteGrade: async (id: string) => {
     try {
-      await db.delete(grades).where(and(eq(grades.id, id), eq(grades.teacherId, teacherId)))
+      await db
+        .delete(grades)
+        .where(eq(grades.id, id));
 
-      return { success: true }
+      return { success: true };
     } catch (error) {
-      console.error("Error deleting grade:", error)
-      throw new Error("Failed to delete grade")
+      console.error("Error deleting grade:", error);
+      throw new Error("Failed to delete grade");
     }
   },
-}
+};
+
+export const createGrade = gradeServerService.createGrade;
+export const updateGrade = gradeServerService.updateGrade;
+export const deleteGrade = gradeServerService.deleteGrade;
+export const getGrades = gradeServerService.fetchGrades;
+export const getGradeById = gradeServerService.fetchGradeById;
+export const getGradesByStudent = gradeServerService.fetchGradesByStudent;
+export const getGradesByAssignment = gradeServerService.fetchGradesByAssignment;
+export const getGradesByClass = gradeServerService.fetchGradesByClass;
+export const createBulkGrades = gradeServerService.createBulkGrades
+export const getGradeDistribution = gradeServerService.fetchGradeDistribution
+

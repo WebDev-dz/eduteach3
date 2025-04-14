@@ -1,8 +1,14 @@
+// @/services/assignment-service
+"use client"
+
+import { URL } from 'url'
+
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
-import type { AssignmentCreateInput, AssignmentUpdateInput } from "@/lib/db/dal/assignments"
+import { AssignmentService } from "@/types/services"
+import { AssignmentCreateInput, AssignmentUpdateInput } from "@/types/entities"
+import { toUrl } from '@/lib/utils'
 
-// Query keys
 export const assignmentKeys = {
   all: ["assignments"] as const,
   lists: () => [...assignmentKeys.all, "list"] as const,
@@ -12,25 +18,6 @@ export const assignmentKeys = {
   class: (classId: string) => [...assignmentKeys.all, "class", classId] as const,
 }
 
-export interface AssignmentService {
-  baseRoute: string
-  routes: {
-    fetchAssignments: string
-    fetchAssignmentById: string
-    fetchAssignmentsByClass: string
-    createAssignment: string
-    updateAssignment: string
-    deleteAssignment: string
-  }
-  fetchAssignments: (teacherId: string) => Promise<any[]>
-  fetchAssignmentById: (id: string) => Promise<any>
-  fetchAssignmentsByClass: (classId: string) => Promise<any[]>
-  createAssignment: (data: AssignmentCreateInput) => Promise<any>
-  updateAssignment: (data: AssignmentUpdateInput) => Promise<any>
-  deleteAssignment: (id: string) => Promise<any>
-}
-
-// Hooks
 export function useAssignments(teacherId: string | undefined) {
   return useQuery({
     queryKey: assignmentKeys.list({ teacherId }),
@@ -57,18 +44,10 @@ export function useAssignmentsByClass(classId: string) {
 
 export function useCreateAssignment() {
   const queryClient = useQueryClient()
-
   return useMutation({
     mutationFn: assignmentClientService.createAssignment,
-    onSuccess: (data, variables) => {
-      // Invalidate the assignments list query
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: assignmentKeys.lists() })
-      // Invalidate the class-specific assignments query
-      if (variables.classId) {
-        queryClient.invalidateQueries({
-          queryKey: assignmentKeys.class(variables.classId),
-        })
-      }
       toast.success("Assignment created successfully")
     },
     onError: (error: Error) => {
@@ -79,21 +58,10 @@ export function useCreateAssignment() {
 
 export function useUpdateAssignment() {
   const queryClient = useQueryClient()
-
   return useMutation({
     mutationFn: assignmentClientService.updateAssignment,
     onSuccess: (data, variables) => {
-      // Invalidate both the list and the specific assignment detail
-      queryClient.invalidateQueries({ queryKey: assignmentKeys.lists() })
-      queryClient.invalidateQueries({
-        queryKey: assignmentKeys.detail(variables.id),
-      })
-      // Invalidate the class-specific assignments query if classId is provided
-      if (variables.classId) {
-        queryClient.invalidateQueries({
-          queryKey: assignmentKeys.class(variables.classId),
-        })
-      }
+      queryClient.invalidateQueries({ queryKey: assignmentKeys.detail(variables.id) })
       toast.success("Assignment updated successfully")
     },
     onError: (error: Error) => {
@@ -104,11 +72,9 @@ export function useUpdateAssignment() {
 
 export function useDeleteAssignment() {
   const queryClient = useQueryClient()
-
   return useMutation({
     mutationFn: assignmentClientService.deleteAssignment,
-    onSuccess: (data, variables) => {
-      // Invalidate the assignments list query
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: assignmentKeys.lists() })
       toast.success("Assignment deleted successfully")
     },
@@ -121,90 +87,63 @@ export function useDeleteAssignment() {
 export const assignmentClientService: AssignmentService = {
   baseRoute: "/api/assignments",
   routes: {
-    fetchAssignments: "/",
-    fetchAssignmentById: "/",
-    fetchAssignmentsByClass: "/by-class",
-    createAssignment: "/",
-    updateAssignment: "/",
-    deleteAssignment: "/",
+    fetchAssignments: (teacherId: string) => {
+      return toUrl(assignmentClientService.baseRoute, { teacherId })
+    },
+    fetchAssignmentById: (id: string) => {
+      return toUrl(assignmentClientService.baseRoute, { id })
+    },
+    fetchAssignmentsByClass: (classId: string) => {
+      return toUrl(assignmentClientService.baseRoute, { classId })
+    },
+    createAssignment: () => toUrl(assignmentClientService.baseRoute),
+    updateAssignment: (id: string) => toUrl(assignmentClientService.baseRoute, { id }),
+    deleteAssignment: (id: string) => toUrl(assignmentClientService.baseRoute, { id }),
   },
   fetchAssignments: async (teacherId: string) => {
-    const response = await fetch(
-      `${assignmentClientService.baseRoute}${assignmentClientService.routes.fetchAssignments}?teacherId=${teacherId}`,
-    )
-    if (!response.ok) {
-      throw new Error("Failed to fetch assignments")
-    }
-    return response.json()
+    const res = await fetch(assignmentClientService.routes.fetchAssignments(teacherId))
+    if (!res.ok) throw new Error("Failed to fetch assignments")
+    return res.json()
   },
   fetchAssignmentById: async (id: string) => {
-    const response = await fetch(
-      `${assignmentClientService.baseRoute}${assignmentClientService.routes.fetchAssignmentById}/${id}`,
-    )
-    if (!response.ok) {
-      throw new Error("Failed to fetch assignment")
-    }
-    return response.json()
+    const res = await fetch(assignmentClientService.routes.fetchAssignmentById(id))
+    if (!res.ok) throw new Error("Failed to fetch assignment")
+    return res.json()
   },
   fetchAssignmentsByClass: async (classId: string) => {
-    const response = await fetch(
-      `${assignmentClientService.baseRoute}${assignmentClientService.routes.fetchAssignmentsByClass}?classId=${classId}`,
-    )
-    if (!response.ok) {
-      throw new Error("Failed to fetch assignments for class")
-    }
-    return response.json()
+    const res = await fetch(assignmentClientService.routes.fetchAssignmentsByClass(classId))
+    if (!res.ok) throw new Error("Failed to fetch assignments by class")
+    return res.json()
   },
   createAssignment: async (data: AssignmentCreateInput) => {
-    const response = await fetch(
-      `${assignmentClientService.baseRoute}${assignmentClientService.routes.createAssignment}`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      },
-    )
-
-    if (!response.ok) {
-      const error = await response.json()
-      throw new Error(error.error || "Failed to create assignment")
+    const res = await fetch(assignmentClientService.routes.createAssignment(), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    })
+    if (!res.ok) {
+      const err = await res.json()
+      throw new Error(err.error || "Failed to create assignment")
     }
-
-    return response.json()
+    return res.json()
   },
   updateAssignment: async (data: AssignmentUpdateInput) => {
-    const response = await fetch(
-      `${assignmentClientService.baseRoute}${assignmentClientService.routes.updateAssignment}/${data.id}`,
-      {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      },
-    )
-
-    if (!response.ok) {
-      const error = await response.json()
-      throw new Error(error.error || "Failed to update assignment")
+    const res = await fetch(assignmentClientService.routes.updateAssignment(data.id), {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    })
+    if (!res.ok) {
+      const err = await res.json()
+      throw new Error(err.error || "Failed to update assignment")
     }
-
-    return response.json()
+    return res.json()
   },
   deleteAssignment: async (id: string) => {
-    const response = await fetch(
-      `${assignmentClientService.baseRoute}${assignmentClientService.routes.deleteAssignment}/${id}`,
-      {
-        method: "DELETE",
-      },
-    )
-
-    if (!response.ok) {
-      throw new Error("Failed to delete assignment")
-    }
-
-    return response.json()
+    const res = await fetch(assignmentClientService.routes.deleteAssignment(id), {
+      method: "DELETE",
+    })
+    if (!res.ok) throw new Error("Failed to delete assignment")
+    return res.json()
   },
 }

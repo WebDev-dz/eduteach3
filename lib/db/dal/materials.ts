@@ -1,37 +1,20 @@
+"use server"
+// @/lib/db/dal/material.ts
 import { db } from "@/lib/db"
 import { materials } from "@/lib/db/schema"
+import { MaterialCreateInput, MaterialUpdateInput } from "@/types/entities"
 import { eq, and } from "drizzle-orm"
 import { v4 as uuidv4 } from "uuid"
 
-// Types
-export type MaterialCreateInput = {
-  title: string
-  description?: string | null
-  type: string
-  url?: string | null
-  fileKey?: string | null
-  classId: string
-  teacherId: string
-}
 
-export type MaterialUpdateInput = {
-  id: string
-  title?: string
-  description?: string | null
-  type?: string
-  url?: string | null
-  fileKey?: string | null
-  classId?: string
-  teacherId: string
-}
 
 // Server Service
-export const materialService = {
+const materialService = {
   getMaterials: async (teacherId: string) => {
     try {
       const result = await db.query.materials.findMany({
         where: eq(materials.teacherId, teacherId),
-        orderBy: [materials.title],
+        orderBy: [materials.name],
         with: {
           class: {
             columns: {
@@ -77,7 +60,7 @@ export const materialService = {
     try {
       const result = await db.query.materials.findMany({
         where: eq(materials.classId, classId),
-        orderBy: [materials.title],
+        orderBy: [materials.name],
       })
 
       return result
@@ -91,18 +74,8 @@ export const materialService = {
     try {
       const id = uuidv4()
 
-      await db.insert(materials).values({
-        id,
-        title: data.title,
-        description: data.description || null,
-        type: data.type,
-        url: data.url || null,
-        fileKey: data.fileKey || null,
-        classId: data.classId,
-        teacherId: data.teacherId,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      })
+      const material = {...data}
+      await db.insert(materials).values(material)
 
       return { id }
     } catch (error) {
@@ -141,3 +114,11 @@ export const materialService = {
     }
   },
 }
+
+export const getMaterials = materialService.getMaterials
+export const getMaterialById = materialService.getMaterialById
+export const getMaterialsByClass = materialService.getMaterialsByClass
+export const createMaterial = materialService.createMaterial
+export const updateMaterial = materialService.updateMaterial
+export const deleteMaterial = materialService.deleteMaterial
+

@@ -1,18 +1,49 @@
-import NextAuth from "next-auth"
-import CredentialsProvider from "next-auth/providers/credentials"
-import { compare } from "bcryptjs"
-import { db } from "@/lib/db"
-import { users } from "@/lib/db/schema"
-import { eq } from "drizzle-orm"
-import { z } from "zod"
+import NextAuth, { DefaultSession, NextAuthOptions,  } from "next-auth";
+import CredentialsProvider from "next-auth/providers/credentials";
+import { compare } from "bcryptjs";
+import { db } from "@/lib/db";
+import { users } from "@/lib/db/schema/auth";
+import { eq } from "drizzle-orm";
+import { SupabaseAdapter } from "@auth/supabase-adapter";
+import { z } from "zod";
+import { Adapter } from "next-auth/adapters";
+import * as dotenv from "dotenv";
 
-// Login schema for validation
+const { DATABASE_URL, JWT_SECRET, SUPABASE_SERVICE_ROLE_KEY } =
+  (dotenv.config().parsed as {
+    DATABASE_URL: string;
+    JWT_SECRET: string;
+    SUPABASE_SERVICE_ROLE_KEY: string;
+  }) || "";
+// Define your user roles as a union type
+type UserRole = "teacher" | "admin" | "department_head" | "school_admin";
+
+// Extend the default session user type
+declare module "next-auth" {
+  interface Session {
+    user: {
+      id: string;
+      role: UserRole;
+      organizationId?: string;
+    } & DefaultSession["user"];
+  }
+}
+
+// Extend JWT token type
+declare module "next-auth/jwt" {
+  interface JWT {
+    id: string;
+    role: UserRole;
+    organizationId?: string;
+  }
+}
+
 const loginSchema = z.object({
   email: z.string().email(),
   password: z.string().min(8),
-})
+});
 
-export const authOptions = {
+export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
       name: "Credentials",
@@ -21,39 +52,42 @@ export const authOptions = {
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        // Validate credentials
-        const result = loginSchema.safeParse(credentials)
-        if (!result.success) {
-          return null
-        }
+        try {
+          const result = loginSchema.safeParse(credentials);
+          if (!result.success) {
+            throw new Error("Invalid email or password format");
+          }
 
-        const { email, password } = result.data
+          const { email, password } = result.data;
 
-        // Find user by email
-        const user = await db.query.users.findFirst({
-          where: eq(users.email, email),
-        })
+          const user = await db.query.users.findFirst({
+            where: eq(users.email, email),
+          });
 
-        if (!user) {
-          return null
-        }
+          if (!user) {
+            throw new Error("User not found");
+          }
 
-        // Verify password
-        const passwordMatch = await compare(password, user.passwordHash)
-        if (!passwordMatch) {
-          return null
-        }
+          const passwordMatch = await compare(password, user.passwordHash);
+          if (!passwordMatch) {
+            throw new Error("Incorrect password");
+          }
 
-        // Update last login time
-        await db.update(users).set({ lastLoginAt: new Date() }).where(eq(users.id, user.id))
+          await db
+            .update(users)
+            .set({ lastLoginAt: new Date() })
+            .where(eq(users.id, user.id));
 
-        // Return user data
-        return {
-          id: user.id,
-          email: user.email,
-          name: `${user.firstName} ${user.lastName}`,
-          role: user.role,
-          organizationId: user.organizationId,
+          return {
+            id: user.id,
+            email: user.email,
+            name: `${user.firstName} ${user.lastName}`,
+            role: user.role as UserRole,
+            organizationId: user.organizationId || undefined,
+          };
+        } catch (error) {
+          console.error("Authorization error:", error);
+          return null;
         }
       },
     }),
@@ -61,19 +95,19 @@ export const authOptions = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.id = user.id
-        token.role = user.role
-        token.organizationId = user.organizationId
+        token.id = user.id;
+        token.role = user.role;
+        token.organizationId = user.organizationId;
       }
-      return token
+      return token;
     },
     async session({ session, token }) {
       if (session.user) {
-        session.user.id = token.id
-        session.user.role = token.role
-        session.user.organizationId = token.organizationId
+        session.user.id = token.id;
+        session.user.role = token.role;
+        session.user.organizationId = token.organizationId;
       }
-      return session
+      return session;
     },
   },
   pages: {
@@ -84,8 +118,12 @@ export const authOptions = {
     strategy: "jwt",
     maxAge: 60 * 60 * 24 * 7, // 7 days
   },
-  secret: process.env.JWT_SECRET,
-}
+  secret: JWT_SECRET,
+  adapter: SupabaseAdapter({
+    url: DATABASE_URL,
+    secret: SUPABASE_SERVICE_ROLE_KEY,
+  }) as Adapter,
+};
 
-const handler = NextAuth(authOptions)
-export { handler as GET, handler as POST }
+const handler = NextAuth(authOptions);
+export { handler as GET, handler as POST };

@@ -61,8 +61,7 @@ export default function CreateAssignmentPage() {
   }
 
   return (
-    <SidebarProvider>
-      <AppSidebar variant="inset" />
+    <>
       <SidebarInset>
         <SiteHeader title="Create New Assignment" />
         <div className="flex flex-1 flex-col p-4 md:p-6 gap-4">
@@ -246,6 +245,6 @@ export default function CreateAssignmentPage() {
           </Card>
         </div>
       </SidebarInset>
-    </SidebarProvider>
+    </>
   )
 }

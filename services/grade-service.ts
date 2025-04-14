@@ -1,6 +1,13 @@
+// @/services/grade-service
+"use client"
+
+import { URL } from 'url'
+
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
-import type { GradeCreateInput, GradeUpdateInput } from "@/lib/db/dal/grades"
+import { GradeService, GradeWithDetails } from "@/types/services"
+import { GradeCreateInput, GradeUpdateInput } from "@/types/entities"
+import { toUrl } from '@/lib/utils'
 
 // Query keys
 export const gradeKeys = {
@@ -14,39 +21,8 @@ export const gradeKeys = {
   class: (classId: string) => [...gradeKeys.all, "class", classId] as const,
 }
 
-export type GradeWithDetails = {
-  id: string
-  score: number
-  feedback: string | null
-  studentId: string
-  assignmentId: string
-  studentName: string
-  assignmentTitle: string
-  createdAt: Date
-  updatedAt: Date
-}
 
-export interface GradeService {
-  baseRoute: string
-  routes: {
-    fetchGrades: string
-    fetchGradeById: string
-    fetchGradesByStudent: string
-    fetchGradesByAssignment: string
-    fetchGradesByClass: string
-    createGrade: string
-    updateGrade: string
-    deleteGrade: string
-  }
-  fetchGrades: (teacherId: string) => Promise<GradeWithDetails[]>
-  fetchGradeById: (id: string) => Promise<GradeWithDetails>
-  fetchGradesByStudent: (studentId: string) => Promise<GradeWithDetails[]>
-  fetchGradesByAssignment: (assignmentId: string) => Promise<GradeWithDetails[]>
-  fetchGradesByClass: (classId: string) => Promise<GradeWithDetails[]>
-  createGrade: (data: GradeCreateInput) => Promise<any>
-  updateGrade: (data: GradeUpdateInput) => Promise<any>
-  deleteGrade: (id: string) => Promise<any>
-}
+
 
 // Hooks
 export function useGrades(teacherId: string | undefined) {
@@ -97,8 +73,8 @@ export function useCreateGrade() {
     onSuccess: (data, variables) => {
       // Invalidate relevant queries
       queryClient.invalidateQueries({ queryKey: gradeKeys.lists() })
-      queryClient.invalidateQueries({ queryKey: gradeKeys.student(variables.studentId) })
-      queryClient.invalidateQueries({ queryKey: gradeKeys.assignment(variables.assignmentId) })
+      queryClient.invalidateQueries({ queryKey: gradeKeys.student(variables?.studentId ?? "") })
+      queryClient.invalidateQueries({ queryKey: gradeKeys.assignment(variables?.assignmentId ?? "") })
       toast.success("Grade created successfully")
     },
     onError: (error: Error) => {
@@ -143,14 +119,40 @@ export function useDeleteGrade() {
 export const gradeClientService: GradeService = {
   baseRoute: "/api/grades",
   routes: {
-    fetchGrades: "/",
-    fetchGradeById: "/",
-    fetchGradesByStudent: "/by-student",
-    fetchGradesByAssignment: "/by-assignment",
-    fetchGradesByClass: "/by-class",
-    createGrade: "/",
-    updateGrade: "/",
-    deleteGrade: "/",
+    fetchGrades: () => {
+      return toUrl(gradeClientService.baseRoute)
+    },
+    fetchGradeDistribution: (params: {
+      classId?: string;
+      assignmentId?: string;
+      studentId?: string;
+    }) => {
+      return toUrl(gradeClientService.baseRoute, { distribution: "true", ...params })
+    },
+    fetchGradeById: (id: string) => {
+      return toUrl(gradeClientService.baseRoute, { id })
+    },
+    fetchGradesByStudent: (studentId: string) => {
+      return toUrl(gradeClientService.baseRoute, { studentId })
+    },
+    createBulkGrades: () => {
+      return toUrl(gradeClientService.baseRoute, { bulk: "true" })
+    },
+    fetchGradesByAssignment: (assignmentId: string) => {
+      return toUrl(gradeClientService.baseRoute, { assignmentId })
+    },
+    fetchGradesByClass: (classId: string) => {
+      return toUrl(gradeClientService.baseRoute, { classId })
+    },
+    createGrade: () => {
+      return toUrl(gradeClientService.baseRoute)
+    },
+    updateGrade: (id: string) => {
+      return toUrl(gradeClientService.baseRoute, { id })
+    },
+    deleteGrade: (id: string) => {
+      return toUrl(gradeClientService.baseRoute, { id })
+    },
   },
   fetchGrades: async (teacherId: string) => {
     const response = await fetch(
@@ -161,8 +163,21 @@ export const gradeClientService: GradeService = {
     }
     return response.json()
   },
+  fetchGradeDistribution: async (params: {
+    classId?: string;
+    assignmentId?: string;
+    studentId?: string;
+  }) => {
+    const response = await fetch(
+      gradeClientService.routes.fetchGradeDistribution(params),
+    )
+    if (!response.ok) {
+      throw new Error("Failed to fetch grade distribution")
+    }
+    return response.json()
+  },
   fetchGradeById: async (id: string) => {
-    const response = await fetch(`${gradeClientService.baseRoute}${gradeClientService.routes.fetchGradeById}/${id}`)
+    const response = await fetch(gradeClientService.routes.fetchGradeById(id))
     if (!response.ok) {
       throw new Error("Failed to fetch grade")
     }
@@ -207,6 +222,22 @@ export const gradeClientService: GradeService = {
     if (!response.ok) {
       const error = await response.json()
       throw new Error(error.error || "Failed to create grade")
+    }
+
+    return response.json()
+  },
+  createBulkGrades: async (data: GradeCreateInput[]) => {
+    const response = await fetch(`${gradeClientService.baseRoute}${gradeClientService.routes.createBulkGrades}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    })
+
+    if (!response.ok) {
+      const error = await response.json()
+      throw new Error(error.error || "Failed to create bulk grades")
     }
 
     return response.json()

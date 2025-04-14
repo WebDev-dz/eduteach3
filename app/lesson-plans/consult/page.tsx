@@ -34,11 +34,7 @@ export default function LessonPlanConsultPage() {
   }
 
   return (
-    <SidebarProvider>
-      <AppSidebar variant="inset" />
-      <SidebarInset>
-        <SiteHeader title="Lesson Plan Consultation" />
-        <div className="flex flex-1 flex-col p-4 md:p-6 gap-4">
+    <>me="flex flex-1 flex-col p-4 md:p-6 gap-4">
           <div className="flex items-center gap-2">
             <Button variant="outline" size="icon" onClick={() => router.back()}>
               <ArrowLeftIcon className="h-4 w-4" />
@@ -249,7 +245,6 @@ export default function LessonPlanConsultPage() {
             </form>
           </Card>
         </div>
-      </SidebarInset>
-    </SidebarProvider>
+      </>
   )
 }

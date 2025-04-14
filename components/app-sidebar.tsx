@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import type * as React from "react"
+import type * as React from "react";
 import {
   BookIcon,
   CalendarIcon,
@@ -15,12 +15,12 @@ import {
   SearchIcon,
   SettingsIcon,
   UsersIcon,
-} from "lucide-react"
+} from "lucide-react";
 
-import { NavDocuments } from "./nav-documents"
-import { NavMain } from "./nav-main"
-import { NavSecondary } from "./nav-secondary"
-import { NavUser } from "./nav-user"
+import { NavDocuments } from "./nav-documents";
+import { NavMain } from "./nav-main";
+import { NavSecondary } from "./nav-secondary";
+import { NavUser } from "./nav-user";
 import {
   Sidebar,
   SidebarContent,
@@ -29,7 +29,9 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@/components/ui/sidebar"
+} from "@/components/ui/sidebar";
+import { useSession } from "next-auth/react";
+import { usePathname } from "next/navigation";
 
 const data = {
   user: {
@@ -156,15 +158,32 @@ const data = {
       icon: PencilRulerIcon,
     },
   ],
-}
+};
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const { data: session } = useSession();
+  const user = session?.user!;
+  const path = usePathname();
+  const isActive =
+    !path.includes("/login") &&
+    !path.includes("/signup") &&
+    !path.includes("/auth") &&
+    !!user &&
+    !(path == "");
+
+  if (!isActive) return null;
+
+
+
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild className="data-[slot=sidebar-menu-button]:!p-1.5">
+            <SidebarMenuButton
+              asChild
+              className="data-[slot=sidebar-menu-button]:!p-1.5"
+            >
               <a href="/dashboard">
                 <GraduationCapIcon className="h-5 w-5" />
                 <span className="text-base font-semibold">EduTeach</span>
@@ -179,8 +198,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavUser
+          user={{
+            name: user?.name || "",
+            email: user?.email || "",
+            avatar: user?.image || "",
+          }}
+        />
       </SidebarFooter>
     </Sidebar>
-  )
+  );
 }

@@ -5,7 +5,7 @@ import { useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
-import { signIn } from "next-auth/react"
+import { signIn  } from "next-auth/react"
 import { z } from "zod"
 import { GraduationCapIcon, Loader2Icon } from "lucide-react"
 

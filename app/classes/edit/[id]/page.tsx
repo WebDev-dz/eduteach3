@@ -104,9 +104,7 @@ export default function EditClassPage({ params }: { params: { id: string } }) {
   }
 
   return (
-    <SidebarProvider>
-      <AppSidebar variant="inset" />
-      <SidebarInset>
+    <>
         <SiteHeader title="Edit Class" />
         <div className="flex flex-1 flex-col p-4 md:p-6 gap-4">
           <div className="flex items-center gap-2">
@@ -294,7 +292,6 @@ export default function EditClassPage({ params }: { params: { id: string } }) {
             )}
           </Card>
         </div>
-      </SidebarInset>
-    </SidebarProvider>
+      </>
   )
 }

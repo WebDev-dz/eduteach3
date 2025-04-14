@@ -1,41 +1,10 @@
 import { db } from "@/lib/db"
 import { assignments, grades } from "@/lib/db/schema"
+import { AssignmentCreateInput, AssignmentUpdateInput } from "@/types/entities"
 import { eq, and } from "drizzle-orm"
 import { v4 as uuidv4 } from "uuid"
 
-// Types
-export type AssignmentCreateInput = {
-  title: string
-  type?: string
-  description?: string | null
-  dueDate?: string | Date
-  totalPoints?: number
-  estimatedTime?: number | null
-  instructions?: string
-  allowLateSubmissions?: boolean
-  timeLimit?: number | null
-  status?: string
-  resources?: string | null
-  classId: string
-  teacherId: string
-}
 
-export type AssignmentUpdateInput = {
-  id: string
-  title?: string
-  type?: string
-  description?: string | null
-  dueDate?: string | Date
-  totalPoints?: number
-  estimatedTime?: number | null
-  instructions?: string
-  allowLateSubmissions?: boolean
-  timeLimit?: number | null
-  status?: string
-  resources?: string | null
-  classId?: string
-  teacherId: string
-}
 
 // Server Service
 export const assignmentService = {
@@ -102,25 +71,8 @@ export const assignmentService = {
   createAssignment: async (data: AssignmentCreateInput) => {
     try {
       const id = uuidv4()
-
-      await db.insert(assignments).values({
-        id,
-        title: data.title,
-        type: data.type || "assignment",
-        description: data.description || null,
-        dueDate: data.dueDate ? new Date(data.dueDate) : new Date(),
-        totalPoints: data.totalPoints || 100,
-        estimatedTime: data.estimatedTime,
-        instructions: data.instructions || "",
-        allowLateSubmissions: data.allowLateSubmissions || false,
-        timeLimit: data.timeLimit,
-        status: data.status || "draft",
-        resources: data.resources || null,
-        classId: data.classId,
-        teacherId: data.teacherId,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      })
+      const assignment = {...data , id}
+      await db.insert(assignments).values(assignment)
 
       return { id }
     } catch (error) {

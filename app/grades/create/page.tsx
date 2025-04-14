@@ -34,9 +34,7 @@ export default function CreateGradePage() {
   }
 
   return (
-    <SidebarProvider>
-      <AppSidebar variant="inset" />
-      <SidebarInset>
+    <>
         <SiteHeader title="Add Grade Entry" />
         <div className="flex flex-1 flex-col p-4 md:p-6 gap-4">
           <div className="flex items-center gap-2">
@@ -272,7 +270,6 @@ export default function CreateGradePage() {
             </form>
           </Card>
         </div>
-      </SidebarInset>
-    </SidebarProvider>
+      </>
   )
 }
