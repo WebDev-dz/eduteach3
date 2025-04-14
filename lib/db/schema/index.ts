@@ -7,12 +7,8 @@ import {
   index,
   integer,
   json,
-<<<<<<< HEAD
   jsonb,
-=======
->>>>>>> 2f69deac4efb7941a4a0c04648c119e963a7504b
   pgEnum,
-  pgSchema,
   pgTable,
   primaryKey,
   text,
@@ -220,17 +216,8 @@ export const assignments = pgTable(
     instructions: text("instructions").notNull(),
     allowLateSubmissions: boolean("allow_late_submissions").default(false),
     timeLimit: integer("time_limit"),
-<<<<<<< HEAD
-<<<<<<<< HEAD:lib/db/schema/index.ts
     status: assignmentStatusEnum("status").default("draft").notNull(),
     resources: json("resources"),
-========
-    status: assignmentStatusEnum("status").default("draft"),
->>>>>>>> 2f69deac4efb7941a4a0c04648c119e963a7504b:lib/db/schema.ts
-=======
-    status: assignmentStatusEnum("status").default("draft").notNull(),
-    resources: json("resources"),
->>>>>>> 2f69deac4efb7941a4a0c04648c119e963a7504b
     teacherId: uuid("teacher_id")
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
@@ -257,15 +244,10 @@ export const assignmentSubmissions = pgTable(
       .notNull()
       .references(() => students.id, { onDelete: "cascade" }),
     submissionDate: timestamp("submission_date").defaultNow().notNull(),
-<<<<<<< HEAD
     score: decimal("score"),
     feedback: text("feedback"),
-=======
     content: text("content"),
-    score: decimal("score"),
-    feedback: text("feedback"),
     comments: json("comments"), // Array of comment objects with author, text, timestamp
->>>>>>> 2f69deac4efb7941a4a0c04648c119e963a7504b
     attachments: json("attachments"),
     isLate: boolean("is_late").default(false),
     gradedBy: uuid("graded_by").references(() => users.id),
@@ -355,19 +337,11 @@ export const lessonPlans = pgTable(
     subject: text("subject").notNull(),
     gradeLevel: text("grade_level").notNull(),
     duration: text("duration").notNull(),
-<<<<<<< HEAD
     date: date("date").defaultNow().notNull(),
     classId: uuid("class").references(() => classes.id),
     status: lessonPlanStatusEnum("status").default("draft"),
     objectives: json("objectives").$type<string[]>().notNull(),
     materials: json("materials").$type<string[]>().notNull(),
-=======
-    date: date("date"),
-    classId: uuid("class").references(() => classes.id),
-    status: lessonPlanStatusEnum("status").default("draft"),
-    objectives: json("objectives").notNull(),
-    materials: json("materials").notNull(),
->>>>>>> 2f69deac4efb7941a4a0c04648c119e963a7504b
     introduction: text("introduction").notNull(),
     mainActivity: text("main_activity").notNull(),
     conclusion: text("conclusion").notNull(),
@@ -379,14 +353,11 @@ export const lessonPlans = pgTable(
     organizationId: uuid("organization_id").references(() => organizations.id),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
-<<<<<<< HEAD
     procedure: jsonb("procedure").$type<{
       introduction?: string,
       mainActivity?: string,
       conclusion?: string,
     }>().notNull().default({})
-=======
->>>>>>> 2f69deac4efb7941a4a0c04648c119e963a7504b
   },
   (table) => {
     return [
