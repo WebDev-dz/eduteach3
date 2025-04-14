@@ -51,9 +51,7 @@ export default function StudentsPage() {
   const isLoading = isLoadingStudents || isLoadingClasses
 
   return (
-    <SidebarProvider>
-      <AppSidebar variant="inset" />
-      <SidebarInset>
+    <>
         <SiteHeader title="Students" />
         <div className="flex flex-1 flex-col p-4 md:p-6 gap-4">
           <div className="flex items-center justify-between">
@@ -217,8 +215,7 @@ export default function StudentsPage() {
             </Table>
           </div>
         </div>
-      </SidebarInset>
-    </SidebarProvider>
+      </>
   )
 }
 

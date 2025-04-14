@@ -223,7 +223,6 @@ export const assignments = pgTable(
     allowLateSubmissions: boolean("allow_late_submissions").default(false),
     timeLimit: integer("time_limit"),
     status: assignmentStatusEnum("status").default("draft"),
-    resources: json("resources"),
     teacherId: uuid("teacher_id")
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
@@ -250,10 +249,8 @@ export const assignmentSubmissions = pgTable(
       .notNull()
       .references(() => students.id, { onDelete: "cascade" }),
     submissionDate: timestamp("submission_date").defaultNow().notNull(),
-    content: text("content"),
     score: decimal("score"),
     feedback: text("feedback"),
-    comments: json("comments"), // Array of comment objects with author, text, timestamp
     attachments: json("attachments"),
     isLate: boolean("is_late").default(false),
     gradedBy: uuid("graded_by").references(() => users.id),

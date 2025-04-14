@@ -1,5 +1,7 @@
+"use server"
+
 import { type NextRequest, NextResponse } from "next/server"
-import { lessonPlanService } from "@/lib/db/dal/lesson-plans"
+import { createLessonPlan, getLessonPlans, getLessonPlansByClass } from "@/lib/db/dal/lesson-plans"
 import { getCurrentUser } from "@/lib/auth/auth"
 
 export async function GET(request: NextRequest) {
@@ -13,10 +15,10 @@ export async function GET(request: NextRequest) {
     const classId = searchParams.get("classId")
 
     if (classId) {
-      const lessonPlans = await lessonPlanService.getLessonPlansByClass(classId)
+      const lessonPlans = await getLessonPlansByClass(classId)
       return NextResponse.json(lessonPlans)
     } else {
-      const lessonPlans = await lessonPlanService.getLessonPlans(user.id)
+      const lessonPlans = await getLessonPlans(user.id)
       return NextResponse.json(lessonPlans)
     }
   } catch (error) {
@@ -39,7 +41,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 403 })
     }
 
-    const result = await lessonPlanService.createLessonPlan(data)
+    const result = await createLessonPlan(data)
     return NextResponse.json(result)
   } catch (error) {
     console.error("Error creating lesson plan:", error)

@@ -10,6 +10,7 @@
 # production
 /build
 
+
 # debug
 npm-debug.log*
 yarn-debug.log*
@@ -18,6 +19,8 @@ yarn-error.log*
 
 # env files
 .env*
+
+/drizzle
 
 # vercel
 .vercel

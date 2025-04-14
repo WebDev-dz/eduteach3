@@ -1,6 +1,7 @@
 "use client"
 
 import { BellIcon, CreditCardIcon, LogOutIcon, MoreVerticalIcon, UserCircleIcon } from "lucide-react"
+import { signOut, signIn } from "next-auth/react"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
@@ -79,7 +80,9 @@ export function NavUser({
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={() => signOut({
+              callbackUrl: "/",
+            })}>
               <LogOutIcon />
               Log out
             </DropdownMenuItem>

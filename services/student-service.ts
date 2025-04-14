@@ -1,8 +1,14 @@
+// @/services/student-service
+"use client"
+
+import { URL } from 'url'
+
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
-import type { StudentCreateInput, StudentUpdateInput } from "@/lib/db/dal/students"
+import { StudentService } from "@/types/services"
+import { StudentCreateInput, StudentUpdateInput } from "@/types/entities"
+import { toUrl } from '@/lib/utils'
 
-// Query keys
 export const studentKeys = {
   all: ["students"] as const,
   lists: () => [...studentKeys.all, "list"] as const,
@@ -12,25 +18,6 @@ export const studentKeys = {
   class: (classId: string) => [...studentKeys.all, "class", classId] as const,
 }
 
-export interface StudentService {
-  baseRoute: string
-  routes: {
-    fetchStudents: string
-    fetchStudentById: string
-    fetchStudentsByClass: string
-    createStudent: string
-    updateStudent: string
-    deleteStudent: string
-  }
-  fetchStudents: (teacherId: string) => Promise<any[]>
-  fetchStudentById: (id: string) => Promise<any>
-  fetchStudentsByClass: (classId: string) => Promise<any[]>
-  createStudent: (data: StudentCreateInput) => Promise<any>
-  updateStudent: (data: StudentUpdateInput) => Promise<any>
-  deleteStudent: (id: string) => Promise<any>
-}
-
-// Hooks
 export function useStudents(teacherId: string | undefined) {
   return useQuery({
     queryKey: studentKeys.list({ teacherId }),
@@ -57,11 +44,9 @@ export function useStudentsByClass(classId: string) {
 
 export function useCreateStudent() {
   const queryClient = useQueryClient()
-
   return useMutation({
     mutationFn: studentClientService.createStudent,
     onSuccess: (data, variables) => {
-      // Invalidate the students list query
       queryClient.invalidateQueries({ queryKey: studentKeys.lists() })
       toast.success("Student created successfully")
     },
@@ -73,15 +58,10 @@ export function useCreateStudent() {
 
 export function useUpdateStudent() {
   const queryClient = useQueryClient()
-
   return useMutation({
     mutationFn: studentClientService.updateStudent,
     onSuccess: (data, variables) => {
-      // Invalidate both the list and the specific student detail
-      queryClient.invalidateQueries({ queryKey: studentKeys.lists() })
-      queryClient.invalidateQueries({
-        queryKey: studentKeys.detail(variables.id),
-      })
+      queryClient.invalidateQueries({ queryKey: studentKeys.detail(variables.id) })
       toast.success("Student updated successfully")
     },
     onError: (error: Error) => {
@@ -92,11 +72,9 @@ export function useUpdateStudent() {
 
 export function useDeleteStudent() {
   const queryClient = useQueryClient()
-
   return useMutation({
     mutationFn: studentClientService.deleteStudent,
-    onSuccess: (data, variables) => {
-      // Invalidate the students list query
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: studentKeys.lists() })
       toast.success("Student deleted successfully")
     },
@@ -109,87 +87,63 @@ export function useDeleteStudent() {
 export const studentClientService: StudentService = {
   baseRoute: "/api/students",
   routes: {
-    fetchStudents: "/",
-    fetchStudentById: "/",
-    fetchStudentsByClass: "/by-class",
-    createStudent: "/",
-    updateStudent: "/",
-    deleteStudent: "/",
+    fetchStudents: (teacherId: string) => {
+      return toUrl(studentClientService.baseRoute, { teacherId })
+    },
+    fetchStudentById: (id: string) => {
+      return toUrl(studentClientService.baseRoute, { id })
+    },
+    fetchStudentsByClass: (classId: string) => {
+      return toUrl(studentClientService.baseRoute, { classId })
+    },
+    createStudent: () => toUrl(studentClientService.baseRoute),
+    updateStudent: (id: string) => toUrl(studentClientService.baseRoute, { id }),
+    deleteStudent: (id: string) => toUrl(studentClientService.baseRoute, { id }),
   },
   fetchStudents: async (teacherId: string) => {
-    const response = await fetch(
-      `${studentClientService.baseRoute}${studentClientService.routes.fetchStudents}?teacherId=${teacherId}`,
-    )
-    if (!response.ok) {
-      throw new Error("Failed to fetch students")
-    }
-    return response.json()
+    const res = await fetch(studentClientService.routes.fetchStudents(teacherId))
+    if (!res.ok) throw new Error("Failed to fetch students")
+    return res.json()
   },
   fetchStudentById: async (id: string) => {
-    const response = await fetch(
-      `${studentClientService.baseRoute}${studentClientService.routes.fetchStudentById}/${id}`,
-    )
-    if (!response.ok) {
-      throw new Error("Failed to fetch student")
-    }
-    return response.json()
+    const res = await fetch(studentClientService.routes.fetchStudentById(id))
+    if (!res.ok) throw new Error("Failed to fetch student")
+    return res.json()
   },
   fetchStudentsByClass: async (classId: string) => {
-    const response = await fetch(
-      `${studentClientService.baseRoute}${studentClientService.routes.fetchStudentsByClass}?classId=${classId}`,
-    )
-    if (!response.ok) {
-      throw new Error("Failed to fetch students for class")
-    }
-    return response.json()
+    const res = await fetch(studentClientService.routes.fetchStudentsByClass(classId))
+    if (!res.ok) throw new Error("Failed to fetch students by class")
+    return res.json()
   },
   createStudent: async (data: StudentCreateInput) => {
-    const response = await fetch(`${studentClientService.baseRoute}${studentClientService.routes.createStudent}`, {
+    const res = await fetch(studentClientService.routes.createStudent(undefined), {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
     })
-
-    if (!response.ok) {
-      const error = await response.json()
-      throw new Error(error.error || "Failed to create student")
+    if (!res.ok) {
+      const err = await res.json()
+      throw new Error(err.error || "Failed to create student")
     }
-
-    return response.json()
+    return res.json()
   },
   updateStudent: async (data: StudentUpdateInput) => {
-    const response = await fetch(
-      `${studentClientService.baseRoute}${studentClientService.routes.updateStudent}/${data.id}`,
-      {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      },
-    )
-
-    if (!response.ok) {
-      const error = await response.json()
-      throw new Error(error.error || "Failed to update student")
+    const res = await fetch(studentClientService.routes.updateStudent(undefined), {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    })
+    if (!res.ok) {
+      const err = await res.json()
+      throw new Error(err.error || "Failed to update student")
     }
-
-    return response.json()
+    return res.json()
   },
   deleteStudent: async (id: string) => {
-    const response = await fetch(
-      `${studentClientService.baseRoute}${studentClientService.routes.deleteStudent}/${id}`,
-      {
-        method: "DELETE",
-      },
-    )
-
-    if (!response.ok) {
-      throw new Error("Failed to delete student")
-    }
-
-    return response.json()
+    const res = await fetch(studentClientService.routes.deleteStudent(id), {
+      method: "DELETE",
+    })
+    if (!res.ok) throw new Error("Failed to delete student")
+    return res.json()
   },
-}
+} 

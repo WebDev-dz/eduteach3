@@ -1,9 +1,9 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
-import { authOptions } from "@/lib/auth/auth"
 import { db } from "@/lib/db"
 import { classes, classStudents } from "@/lib/db/schema"
 import { eq, and } from "drizzle-orm"
+import { authOptions } from "../../auth/[...nextauth]/route"
 
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   try {

@@ -1,8 +1,14 @@
+// @/services/assignment-service
+"use client"
+
+import { URL } from 'url'
+
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
-import type { MaterialCreateInput, MaterialUpdateInput } from "@/lib/db/dal/materials"
+import { MaterialService } from "@/types/services"
+import { MaterialCreateInput, MaterialUpdateInput } from "@/types/entities"
+import { toUrl } from '@/lib/utils'
 
-// Query keys
 export const materialKeys = {
   all: ["materials"] as const,
   lists: () => [...materialKeys.all, "list"] as const,
@@ -12,25 +18,6 @@ export const materialKeys = {
   class: (classId: string) => [...materialKeys.all, "class", classId] as const,
 }
 
-export interface MaterialService {
-  baseRoute: string
-  routes: {
-    fetchMaterials: string
-    fetchMaterialById: string
-    fetchMaterialsByClass: string
-    createMaterial: string
-    updateMaterial: string
-    deleteMaterial: string
-  }
-  fetchMaterials: (teacherId: string) => Promise<any[]>
-  fetchMaterialById: (id: string) => Promise<any>
-  fetchMaterialsByClass: (classId: string) => Promise<any[]>
-  createMaterial: (data: MaterialCreateInput) => Promise<any>
-  updateMaterial: (data: MaterialUpdateInput) => Promise<any>
-  deleteMaterial: (id: string) => Promise<any>
-}
-
-// Hooks
 export function useMaterials(teacherId: string | undefined) {
   return useQuery({
     queryKey: materialKeys.list({ teacherId }),
@@ -57,18 +44,10 @@ export function useMaterialsByClass(classId: string) {
 
 export function useCreateMaterial() {
   const queryClient = useQueryClient()
-
   return useMutation({
     mutationFn: materialClientService.createMaterial,
-    onSuccess: (data, variables) => {
-      // Invalidate the materials list query
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: materialKeys.lists() })
-      // Invalidate the class-specific materials query
-      if (variables.classId) {
-        queryClient.invalidateQueries({
-          queryKey: materialKeys.class(variables.classId),
-        })
-      }
       toast.success("Material created successfully")
     },
     onError: (error: Error) => {
@@ -79,21 +58,10 @@ export function useCreateMaterial() {
 
 export function useUpdateMaterial() {
   const queryClient = useQueryClient()
-
   return useMutation({
     mutationFn: materialClientService.updateMaterial,
     onSuccess: (data, variables) => {
-      // Invalidate both the list and the specific material detail
-      queryClient.invalidateQueries({ queryKey: materialKeys.lists() })
-      queryClient.invalidateQueries({
-        queryKey: materialKeys.detail(variables.id),
-      })
-      // Invalidate the class-specific materials query if classId is provided
-      if (variables.classId) {
-        queryClient.invalidateQueries({
-          queryKey: materialKeys.class(variables.classId),
-        })
-      }
+      queryClient.invalidateQueries({ queryKey: materialKeys.detail(variables.id) })
       toast.success("Material updated successfully")
     },
     onError: (error: Error) => {
@@ -104,11 +72,9 @@ export function useUpdateMaterial() {
 
 export function useDeleteMaterial() {
   const queryClient = useQueryClient()
-
   return useMutation({
     mutationFn: materialClientService.deleteMaterial,
-    onSuccess: (data, variables) => {
-      // Invalidate the materials list query
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: materialKeys.lists() })
       toast.success("Material deleted successfully")
     },
@@ -121,87 +87,63 @@ export function useDeleteMaterial() {
 export const materialClientService: MaterialService = {
   baseRoute: "/api/materials",
   routes: {
-    fetchMaterials: "/",
-    fetchMaterialById: "/",
-    fetchMaterialsByClass: "/by-class",
-    createMaterial: "/",
-    updateMaterial: "/",
-    deleteMaterial: "/",
+    fetchMaterials: (teacherId: string) => {
+      return toUrl(materialClientService.baseRoute, { teacherId })
+    },
+    fetchMaterialById: (id: string) => {
+      return toUrl(materialClientService.baseRoute, { id })
+    },
+    fetchMaterialsByClass: (classId: string) => {
+      return toUrl(materialClientService.baseRoute, { classId })
+    },
+    createMaterial: () => toUrl(materialClientService.baseRoute),
+    updateMaterial: (id: string) => toUrl(materialClientService.baseRoute, { id }),
+    deleteMaterial: (id: string) => toUrl(materialClientService.baseRoute, { id }),
   },
   fetchMaterials: async (teacherId: string) => {
-    const response = await fetch(
-      `${materialClientService.baseRoute}${materialClientService.routes.fetchMaterials}?teacherId=${teacherId}`,
-    )
-    if (!response.ok) {
-      throw new Error("Failed to fetch materials")
-    }
-    return response.json()
+    const res = await fetch(materialClientService.routes.fetchMaterials(teacherId))
+    if (!res.ok) throw new Error("Failed to fetch materials")
+    return res.json()
   },
   fetchMaterialById: async (id: string) => {
-    const response = await fetch(
-      `${materialClientService.baseRoute}${materialClientService.routes.fetchMaterialById}/${id}`,
-    )
-    if (!response.ok) {
-      throw new Error("Failed to fetch material")
-    }
-    return response.json()
+    const res = await fetch(materialClientService.routes.fetchMaterialById(id))
+    if (!res.ok) throw new Error("Failed to fetch material")
+    return res.json()
   },
   fetchMaterialsByClass: async (classId: string) => {
-    const response = await fetch(
-      `${materialClientService.baseRoute}${materialClientService.routes.fetchMaterialsByClass}?classId=${classId}`,
-    )
-    if (!response.ok) {
-      throw new Error("Failed to fetch materials for class")
-    }
-    return response.json()
+    const res = await fetch(materialClientService.routes.fetchMaterialsByClass(classId))
+    if (!res.ok) throw new Error("Failed to fetch materials by class")
+    return res.json()
   },
   createMaterial: async (data: MaterialCreateInput) => {
-    const response = await fetch(`${materialClientService.baseRoute}${materialClientService.routes.createMaterial}`, {
+    const res = await fetch(materialClientService.routes.createMaterial(undefined), {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
     })
-
-    if (!response.ok) {
-      const error = await response.json()
-      throw new Error(error.error || "Failed to create material")
+    if (!res.ok) {
+      const err = await res.json()
+      throw new Error(err.error || "Failed to create material")
     }
-
-    return response.json()
+    return res.json()
   },
   updateMaterial: async (data: MaterialUpdateInput) => {
-    const response = await fetch(
-      `${materialClientService.baseRoute}${materialClientService.routes.updateMaterial}/${data.id}`,
-      {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      },
-    )
-
-    if (!response.ok) {
-      const error = await response.json()
-      throw new Error(error.error || "Failed to update material")
+    const res = await fetch(`${materialClientService.routes.updateMaterial(undefined)}/${data.id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    })
+    if (!res.ok) {
+      const err = await res.json()
+      throw new Error(err.error || "Failed to update material")
     }
-
-    return response.json()
+    return res.json()
   },
   deleteMaterial: async (id: string) => {
-    const response = await fetch(
-      `${materialClientService.baseRoute}${materialClientService.routes.deleteMaterial}/${id}`,
-      {
-        method: "DELETE",
-      },
-    )
-
-    if (!response.ok) {
-      throw new Error("Failed to delete material")
-    }
-
-    return response.json()
+    const res = await fetch(`${materialClientService.routes.deleteMaterial(id)}`, {
+      method: "DELETE",
+    })
+    if (!res.ok) throw new Error("Failed to delete material")
+    return res.json()
   },
 }

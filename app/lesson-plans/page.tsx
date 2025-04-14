@@ -81,9 +81,7 @@ export default function LessonPlansPage() {
   const isError = isErrorPlans
 
   return (
-    <SidebarProvider>
-      <AppSidebar variant="inset" />
-      <SidebarInset>
+    <>
         <SiteHeader title="Lesson Plans" />
         <div className="flex flex-1 flex-col p-4 md:p-6 gap-4">
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
@@ -219,8 +217,7 @@ export default function LessonPlansPage() {
             </TabsContent>
           </Tabs>
         </div>
-      </SidebarInset>
-    </SidebarProvider>
+      </>
   )
 }
 

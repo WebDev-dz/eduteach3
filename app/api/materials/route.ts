@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { materialService } from "@/lib/db/dal/materials"
+import { getMaterialsByClass, getMaterials, createMaterial } from "@/lib/db/dal/materials"
 import { getCurrentUser } from "@/lib/auth/auth"
 
 export async function GET(request: NextRequest) {
@@ -13,10 +13,10 @@ export async function GET(request: NextRequest) {
     const classId = searchParams.get("classId")
 
     if (classId) {
-      const materials = await materialService.getMaterialsByClass(classId)
+      const materials = await getMaterialsByClass(classId)
       return NextResponse.json(materials)
     } else {
-      const materials = await materialService.getMaterials(user.id)
+      const materials = await getMaterials(user.id)
       return NextResponse.json(materials)
     }
   } catch (error) {
@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 403 })
     }
 
-    const result = await materialService.createMaterial(data)
+    const result = await createMaterial(data)
     return NextResponse.json(result)
   } catch (error) {
     console.error("Error creating material:", error)

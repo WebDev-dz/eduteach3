@@ -73,9 +73,7 @@ export default function CreateClassPage() {
   }
 
   return (
-    <SidebarProvider>
-      <AppSidebar variant="inset" />
-      <SidebarInset>
+    <>
         <SiteHeader title="Create New Class" />
         <div className="flex flex-1 flex-col p-4 md:p-6 gap-4">
           <div className="flex items-center gap-2">
@@ -236,7 +234,6 @@ export default function CreateClassPage() {
             </form>
           </Card>
         </div>
-      </SidebarInset>
-    </SidebarProvider>
+      </>
   )
 }

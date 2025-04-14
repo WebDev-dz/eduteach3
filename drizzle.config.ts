@@ -6,7 +6,7 @@ const connectionString = (dotenv.config().parsed as { DATABASE_URL: string }).DA
 console.log({connectionString})
 export default defineConfig({
   dialect: "postgresql",
-  schema: "./lib/db/schema.ts",
+  schema: "./lib/db/schema/index.ts",
   dbCredentials: {
     url: connectionString,
   }

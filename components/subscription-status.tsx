@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { useRouter } from "next/navigation"
-import { PLANS } from "@/lib/subscription/plans"
+import { PLANS } from "@/lib/db/dal/plans"
 
 type Subscription = {
   id: string

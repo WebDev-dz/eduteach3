@@ -3,13 +3,14 @@ import { db } from "@/lib/db"
 import { assignmentSubmissions } from "@/lib/db/schema"
 import { eq } from "drizzle-orm"
 import { v4 as uuidv4 } from "uuid"
-import { getServerSession } from "next-auth"
-import { authOptions } from "@/lib/auth/auth"
+import { getServerSession, NextAuthOptions } from "next-auth"
+import { authOptions } from "@/app/api/auth/[...nextauth]/route"
+import { checkRequests } from "@/lib/utils"
 
 // Get all submissions for an assignment
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const session = await getServerSession(authOptions)
+    const session = await getServerSession(authOptions as NextAuthOptions)
     if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
@@ -40,7 +41,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
 // Create a new submission
 export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const session = await getServerSession(authOptions)
+    const session = await getServerSession(authOptions as NextAuthOptions)
     if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }

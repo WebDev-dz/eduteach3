@@ -119,9 +119,7 @@ export default function CreateLessonPlanPage() {
   }
 
   return (
-    <SidebarProvider>
-      <AppSidebar variant="inset" />
-      <SidebarInset>
+    <>
         <SiteHeader title={editId ? "Edit Lesson Plan" : "Create Lesson Plan"} />
         <div className="flex flex-1 flex-col p-4 md:p-6 gap-4">
           <div className="flex items-center gap-2">
@@ -401,8 +399,7 @@ export default function CreateLessonPlanPage() {
             </form>
           </Card>
         </div>
-      </SidebarInset>
-    </SidebarProvider>
+      </>
   )
 }
 
