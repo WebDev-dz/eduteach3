@@ -26,7 +26,7 @@ import useLayoutEffect from '@/components/editor/shared/src/useLayoutEffect';
 import {createWebsocketProvider} from '../collaboration';
 import {useSharedHistoryContext} from '../context/SharedHistoryContext';
 import StickyEditorTheme from '../themes/StickyEditorTheme';
-import ContentEditable from '../ui/ContentEditable';
+import ContentEditable from '.@/components/ui/ContentEditable';
 import {$isStickyNode} from './StickyNode';
 
 type Positioning = {

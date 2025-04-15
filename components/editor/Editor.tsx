@@ -76,7 +76,7 @@ import ToolbarPlugin from './plugins/ToolbarPlugin';
 import TreeViewPlugin from './plugins/TreeViewPlugin';
 import TwitterPlugin from './plugins/TwitterPlugin';
 import YouTubePlugin from './plugins/YouTubePlugin';
-import ContentEditable from './ui/ContentEditable';
+import ContentEditable from '@/components/ui/ContentEditable';
 
 const skipCollaborationInit =
   // @ts-expect-error

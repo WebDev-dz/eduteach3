@@ -17,9 +17,9 @@ import {EditorThemeClasses, Klass, LexicalEditor, LexicalNode} from 'lexical';
 import {createContext, useContext, useEffect, useMemo, useState} from 'react';
 import invariant from '@/components/editor/shared/src/invariant';
 
-import Button from '../ui/Button';
-import {DialogActions} from '../ui/Dialog';
-import TextInput from '../ui/TextInput';
+import Button from '.@/components/ui/Button';
+import {DialogActions} from '.@/components/ui/Dialog';
+import TextInput from '.@/components/ui/TextInput';
 
 export type InsertTableCommandPayload = Readonly<{
   columns: string;

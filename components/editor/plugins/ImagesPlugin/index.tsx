@@ -38,10 +38,10 @@ import {
   ImageNode,
   ImagePayload,
 } from '../../nodes/ImageNode';
-import Button from '../../ui/Button';
-import {DialogActions, DialogButtonsList} from '../../ui/Dialog';
-import FileInput from '../../ui/FileInput';
-import TextInput from '../../ui/TextInput';
+import Button from '../.@/components/ui/Button';
+import {DialogActions, DialogButtonsList} from '../.@/components/ui/Dialog';
+import FileInput from '../.@/components/ui/FileInput';
+import TextInput from '../.@/components/ui/TextInput';
 
 export type InsertImagePayload = Readonly<ImagePayload>;
 

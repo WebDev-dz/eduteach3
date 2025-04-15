@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
-import type {ExcalidrawInitialElements} from '../../ui/ExcalidrawModal';
+import type {ExcalidrawInitialElements} from '../.@/components/ui/ExcalidrawModal';
 import type {AppState, BinaryFiles} from '@excalidraw/excalidraw/types/types';
 
 import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
@@ -24,7 +24,7 @@ import {
   $createExcalidrawNode,
   ExcalidrawNode,
 } from '../../nodes/ExcalidrawNode';
-import ExcalidrawModal from '../../ui/ExcalidrawModal';
+import ExcalidrawModal from '../.@/components/ui/ExcalidrawModal';
 
 export const INSERT_EXCALIDRAW_COMMAND: LexicalCommand<void> = createCommand(
   'INSERT_EXCALIDRAW_COMMAND',

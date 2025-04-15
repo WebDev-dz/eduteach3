@@ -52,7 +52,7 @@ import {createPortal} from 'react-dom';
 import invariant from '@/components/editor/shared/src/invariant';
 
 import useModal from '../../hooks/useModal';
-import ColorPicker from '../../ui/ColorPicker';
+import ColorPicker from '../.@/components/ui/ColorPicker';
 
 function computeSelectionCount(selection: TableSelection): {
   columns: number;

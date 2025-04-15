@@ -16,7 +16,7 @@ import {
   useState,
 } from 'react';
 
-import FlashMessage from '../ui/FlashMessage';
+import FlashMessage from '.@/components/ui/FlashMessage';
 
 export type ShowFlashMessage = (
   message?: React.ReactNode,

@@ -256,10 +256,10 @@ export const assignmentSubmissions = pgTable(
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
   (table) => {
-    return {
-      assignmentIdx: index("submission_assignment_idx").on(table.assignmentId),
-      studentIdx: index("submission_student_idx").on(table.studentId),
-    };
+    return [
+      index("submission_assignment_idx").on(table.assignmentId),
+      index("submission_student_idx").on(table.studentId),
+    ];
   }
 );
 

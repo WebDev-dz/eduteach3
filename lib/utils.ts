@@ -109,3 +109,17 @@ export const checkRequests = <T extends z.ZodRawShape>(
 //   };
 // };
 
+export function getInitials(name: string): string {
+  return name
+    .split(" ")
+    .map((part) => part[0])
+    .join("")
+    .toUpperCase()
+    .substring(0, 2);
+}
+
+export function getPerformanceColor(performance: number): string {
+  if (performance >= 85) return "bg-green-500";
+  if (performance >= 70) return "bg-yellow-500";
+  return "bg-red-500";
+}

@@ -37,11 +37,11 @@ import {JSX, Suspense, useCallback, useEffect, useRef, useState} from 'react';
 
 import useModal from '../../hooks/useModal';
 import LinkPlugin from '../../plugins/LinkPlugin';
-import Button from '../../ui/Button';
-import ContentEditable from '../../ui/ContentEditable';
-import {DialogActions} from '../../ui/Dialog';
-import Select from '../../ui/Select';
-import TextInput from '../../ui/TextInput';
+import Button from '../.@/components/ui/Button';
+import ContentEditable from '../.@/components/ui/ContentEditable';
+import {DialogActions} from '../.@/components/ui/Dialog';
+import Select from '../.@/components/ui/Select';
+import TextInput from '../.@/components/ui/TextInput';
 import {$isInlineImageNode, InlineImageNode} from './InlineImageNode';
 
 const imageCache = new Set();

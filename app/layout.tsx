@@ -4,7 +4,7 @@ import { SonnerProvider } from "@/components/providers/sonner-provider";
 import { QueryProvider } from "@/providers/query-provider";
 import "./globals.css";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import { AppSidebar } from "@/components/app-sidebar";
+import { AppSidebar } from "@/components/shared/app-sidebar";
 
 export default function RootLayout({
   children,

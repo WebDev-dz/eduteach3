@@ -9,8 +9,8 @@ import {LexicalEditor} from 'lexical';
 import * as React from 'react';
 import {useState} from 'react';
 
-import Button from '../../ui/Button';
-import DropDown, {DropDownItem} from '../../ui/DropDown';
+import Button from '../.@/components/ui/Button';
+import DropDown, {DropDownItem} from '../.@/components/ui/DropDown';
 import {INSERT_LAYOUT_COMMAND} from './LayoutPlugin';
 
 const LAYOUTS = [

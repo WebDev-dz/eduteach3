@@ -36,7 +36,7 @@ import {parseAllowedFontSize} from './plugins/ToolbarPlugin/fontSize';
 import TypingPerfPlugin from './plugins/TypingPerfPlugin';
 import Settings from './Settings';
 import PlaygroundEditorTheme from './themes/PlaygroundEditorTheme';
-import {parseAllowedColor} from './ui/ColorPicker';
+import {parseAllowedColor} from '@/components/ui/ColorPicker';
 import { JSX, Suspense } from 'react';
 
 console.warn(

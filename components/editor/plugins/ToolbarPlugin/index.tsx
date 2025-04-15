@@ -61,8 +61,8 @@ import {
 import useModal from '../../hooks/useModal';
 import catTypingGif from '../../images/cat-typing.gif';
 import {$createStickyNode} from '../../nodes/StickyNode';
-import DropDown, {DropDownItem} from '../../ui/DropDown';
-import DropdownColorPicker from '../../ui/DropdownColorPicker';
+import DropDown, {DropDownItem} from '../.@/components/ui/DropDown';
+import DropdownColorPicker from '../.@/components/ui/DropdownColorPicker';
 import {getSelectedNode} from '../../utils/getSelectedNode';
 import {sanitizeUrl} from '../../utils/url';
 import {EmbedConfigs} from '../AutoEmbedPlugin';

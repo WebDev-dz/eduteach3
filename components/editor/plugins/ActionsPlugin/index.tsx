@@ -39,7 +39,7 @@ import {JSX, useCallback, useEffect, useState} from 'react';
 import {INITIAL_SETTINGS} from '../../appSettings';
 import useFlashMessage from '../../hooks/useFlashMessage';
 import useModal from '../../hooks/useModal';
-import Button from '../../ui/Button';
+import Button from '../.@/components/ui/Button';
 import {docFromHash, docToHash} from '../../utils/docSerialization';
 import {PLAYGROUND_TRANSFORMERS} from '../MarkdownTransformers';
 import {
