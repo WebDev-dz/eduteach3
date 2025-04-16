@@ -1,8 +1,8 @@
 "use client"
 
 import { useRouter, useParams } from "next/navigation"
-import { AppSidebar } from "../@/components/shared/app-sidebar"
-import { SiteHeader } from "../@/components/shared/site-header"
+import { AppSidebar } from "@/components/shared/app-sidebar"
+import { SiteHeader } from "@/components/shared/site-header"
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
