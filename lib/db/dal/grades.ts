@@ -149,7 +149,7 @@ const gradeServerService: GradeServerService = {
     assignmentId?: string;
     studentId?: string;
   }) {
-    try {
+   try {
       // Build where conditions based on provided filters
       const whereConditions = [];
       

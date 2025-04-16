@@ -65,11 +65,7 @@ type StudentDetailsProps = {
   };
 };
 
-<<<<<<< HEAD
-export default function StudentProfile({ student }: StudentDetailsProps) {
-=======
 export function StudentProfile({ student }: StudentDetailsProps) {
->>>>>>> 2f69deac4efb7941a4a0c04648c119e963a7504b
   const router = useRouter();
   const { mutate: deleteStudent, isPending: isDeleting } = useDeleteStudent();
   const { mutate: updateStudent, isPending: isUpdating } = useUpdateStudent();
