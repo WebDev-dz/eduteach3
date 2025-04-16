@@ -20,11 +20,11 @@ export async function GET(request: NextRequest) {
       const events = await getCalendarEventsByClass(classId)
       return NextResponse.json(events)
     } else {
-      const events = await getCalendarEvents(
-        user.id,
-        startDate ? new Date(startDate) : undefined,
-        endDate ? new Date(endDate) : undefined,
-      )
+      const events = await getCalendarEvents({
+        teacherId: user.id,
+        startDate: startDate ? new Date(startDate) : undefined,
+        endDate: endDate ? new Date(endDate) : undefined
+      })
       return NextResponse.json(events)
     }
   } catch (error) {

@@ -9,48 +9,57 @@ import { z } from 'zod';
 
 
 export const assignmentInsertSchema = createInsertSchema(assignments, {
-    updatedAt: z.date().transform(val => new Date(val)),
-    createdAt: z.date().transform(val => new Date(val)),
+    totalPoints: z.coerce.number(),
+    estimatedTime: z.coerce.number(),
+    dueDate: z.coerce.date(),
+    allowLateSubmissions: z.coerce.boolean(),
+    timeLimit: z.coerce.number(),
+    updatedAt: z.coerce.date(),
+    createdAt: z.coerce.date(),
 })
 export const lessonPlanInsertSchema = createInsertSchema(lessonPlans, {
-    updatedAt: z.date().transform(val => new Date(val)),
-    createdAt: z.date().transform(val => new Date(val)),
+    date: z.coerce.date(),
+    duration: z.coerce.number(),
+
+    updatedAt: z.coerce.date(),
+    createdAt: z.coerce.date(),
 })
 export const materialInsertSchema = createInsertSchema(materials, {
-    updatedAt: z.date().transform(val => new Date(val)),
-    createdAt: z.date().transform(val => new Date(val)),
+    updatedAt: z.coerce.date(),
+    createdAt: z.coerce.date(),
 })
 export const studentInsertSchema = createInsertSchema(students, {
-    updatedAt: z.date().transform(val => new Date(val)),
-    createdAt: z.date().transform(val => new Date(val)),
+    dateOfBirth: z.coerce.date(),
+    updatedAt: z.coerce.date(),
+    createdAt: z.coerce.date(),
 })
 export const classInsertSchema = createInsertSchema(classes, {
     capacity: z.coerce.number(),
 })
 export const userInsertSchema = createInsertSchema(users, {
-    updatedAt: z.date().transform(val => new Date(val)),
-    createdAt: z.date().transform(val => new Date(val)),
+    updatedAt: z.coerce.date(),
+    createdAt: z.coerce.date(),
 })
 export const organizationInsertSchema = createInsertSchema(organizations, {
-    updatedAt: z.date().transform(val => new Date(val)),
-    createdAt: z.date().transform(val => new Date(val)),
+    updatedAt: z.coerce.date(),
+    createdAt: z.coerce.date(),
 })
 export const subscriptionInsertSchema = createInsertSchema(subscriptions, {
-    updatedAt: z.date().transform(val => new Date(val)),
-    createdAt: z.date().transform(val => new Date(val)),
+    updatedAt: z.coerce.date(),
+    createdAt: z.coerce.date(),
 })
 export const featureLimitInsertSchema = createInsertSchema(featureLimits, {
-    updatedAt: z.date().transform(val => new Date(val)),
-    createdAt: z.date().transform(val => new Date(val)),
+    updatedAt: z.coerce.date(),
+    createdAt: z.coerce.date(),
 })
 export const classStudentInsertSchema = createInsertSchema(classStudents, {
 })
 export const gradeInsertSchema = createInsertSchema(grades, {
-    updatedAt: z.date().transform(val => new Date(val)),
-    createdAt: z.date().transform(val => new Date(val)),
+    updatedAt: z.coerce.date(),
+    createdAt: z.coerce.date(),
 })
 
 export const calendarEventInsertSchema = createInsertSchema(calendarEvents, {
-    startDate: z.date().transform(val => new Date(val)),
-    endDate: z.date().transform(val => new Date(val)),
+    startDate: z.coerce.date(),
+    endDate: z.coerce.date(),
 })

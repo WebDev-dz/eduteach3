@@ -8,6 +8,7 @@ import { toast } from "sonner"
 import { AssignmentService } from "@/types/services"
 import { AssignmentCreateInput, AssignmentUpdateInput } from "@/types/entities"
 import { toUrl } from '@/lib/utils'
+import { useRouter } from 'next/navigation'
 
 export const assignmentKeys = {
   all: ["assignments"] as const,
@@ -44,11 +45,13 @@ export function useAssignmentsByClass(classId: string) {
 
 export function useCreateAssignment() {
   const queryClient = useQueryClient()
+  const router = useRouter()
   return useMutation({
     mutationFn: assignmentClientService.createAssignment,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: assignmentKeys.lists() })
       toast.success("Assignment created successfully")
+      router.push("/assignments")
     },
     onError: (error: Error) => {
       toast.error(error.message)

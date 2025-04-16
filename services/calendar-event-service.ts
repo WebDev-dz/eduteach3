@@ -5,6 +5,7 @@ import type { CalendarEventService } from "@/types/services"
 import type { CalendarEventCreateInput, CalendarEventUpdateInput } from "@/types/entities"
 import { parse, build, omit, keep,  } from 'search-params'
 import { toUrl } from "@/lib/utils"
+import { calendarEventSelectSchema } from "@/lib/validation/select"
 export const calendarEventKeys = {
   all: ["calendarEvents"] as const,
   lists: () => [...calendarEventKeys.all, "list"] as const,
@@ -14,13 +15,19 @@ export const calendarEventKeys = {
   class: (classId: string) => [...calendarEventKeys.all, "class", classId] as const,
 }
 
-export function useCalendarEvents(teacherId: string | undefined, startDate?: Date, endDate?: Date) {
-  return useQuery({
-    queryKey: calendarEventKeys.list({ teacherId, startDate, endDate }),
-    queryFn: () =>
-      teacherId ? calendarEventClientService.fetchCalendarEvents(teacherId, startDate, endDate) : Promise.resolve([]),
-    enabled: !!teacherId,
+export function useCalendarEvents() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: calendarEventClientService.fetchCalendarEvents ,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: calendarEventKeys.lists() })
+      toast.success("Calendar event fetched successfully")
+    },
+    onError: (error: Error) => {
+      toast.error(error.message)
+    },
   })
+  
 }
 
 export function useCalendarEvent(id: string) {
@@ -96,25 +103,28 @@ export const calendarEventClientService: CalendarEventService = {
   baseRoute: "/api/calendar-events",
   routes: {
     fetchCalendarEvents: (teacherId: string, startDate?: Date, endDate?: Date) => {
-      const params = {teacherId, startDate: startDate?.toISOString(), endDate: endDate?.toISOString()}
+      const params = { teacherId, startDate: startDate?.toISOString(), endDate: endDate?.toISOString() }
       return toUrl(calendarEventClientService.baseRoute, params)
     },
     fetchCalendarEventById: (id: string) => {
       return toUrl(`${calendarEventClientService.baseRoute}/${id}`)
     },
     fetchCalendarEventsByClass: (classId: string) => {
-      const params = {classId}
+      const params = { classId }
       return toUrl(calendarEventClientService.baseRoute, params)
     },
     createCalendarEvent: () => calendarEventClientService.baseRoute,
     updateCalendarEvent: (id: string) => toUrl(`${calendarEventClientService.baseRoute}/${id}`),
     deleteCalendarEvent: (id: string) => toUrl(`${calendarEventClientService.baseRoute}/${id}`),
   },
-  fetchCalendarEvents: async (teacherId: string, startDate?: Date, endDate?: Date) => {
-    const url = calendarEventClientService.routes.fetchCalendarEvents(teacherId, startDate, endDate)
+  fetchCalendarEvents: async (filters: Record<string, any>) => {
+    const url = calendarEventClientService.routes.fetchCalendarEvents(filters)
     const res = await fetch(url)
     if (!res.ok) throw new Error("Failed to fetch calendar events")
-    return res.json()
+    const data = calendarEventSelectSchema.array().safeParse(await res.json())
+    console.log(data.error)
+    if (!data.success) throw new Error("Invalid data type")
+    return data.data
   },
   fetchCalendarEventById: async (id: string) => {
     const res = await fetch(calendarEventClientService.routes.fetchCalendarEventById(id))
@@ -157,4 +167,10 @@ export const calendarEventClientService: CalendarEventService = {
     if (!res.ok) throw new Error("Failed to delete calendar event")
     return res.json()
   },
+  exportCalendarEvents: function (teacherId: string): Promise<Blob> {
+    throw new Error("Function not implemented.")
+  },
+  importCalendarEvents: function (file: File, options?: { format?: "csv" | "excel" }): Promise<{ success: boolean; count: number }> {
+    throw new Error("Function not implemented.")
+  }
 }

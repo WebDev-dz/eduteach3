@@ -1,6 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { assignmentService } from "@/lib/db/dal/assignments"
 import { getCurrentUser } from "@/lib/auth/auth"
+import { assignmentInsertSchema } from "@/lib/validation/insert"
 
 export async function GET(request: NextRequest) {
   try {
@@ -38,8 +39,11 @@ export async function POST(request: NextRequest) {
     if (data.teacherId !== user.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 403 })
     }
-
-    const result = await assignmentService.createAssignment(data)
+    const { success, error, data: parsedData } = assignmentInsertSchema.safeParse(data)
+    if (!success) {
+      return NextResponse.json({ error: error.message }, { status: 400 })
+    }
+    const result = await assignmentService.createAssignment(parsedData)
     return NextResponse.json(result)
   } catch (error) {
     console.error("Error creating assignment:", error)

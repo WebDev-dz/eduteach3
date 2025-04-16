@@ -9,7 +9,8 @@ import { CalendarEventServerService, CalendarEventService } from "@/types/servic
 
 // Server Service
 const calendarEventService: CalendarEventServerService = {
-  fetchCalendarEvents: async (teacherId: string, startDate?: Date, endDate?: Date) => {
+  fetchCalendarEvents: async (filters) => {
+    const { teacherId, startDate, endDate } = filters
     const columns = getTableColumns(calendarEvents)
     try {
       let query = db

@@ -8,6 +8,8 @@ import { eq, and, sql } from "drizzle-orm"
 import { v4 as uuidv4 } from "uuid"
 
 
+type params = Parameters<typeof db.query.classes.findMany>
+
 export const getClasses : ClassService["fetchClasses"] = async (teacherId: string) => {
   try {
     const result = await db.query.classes.findMany({

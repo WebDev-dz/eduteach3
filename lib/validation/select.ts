@@ -21,6 +21,8 @@ export const classStudentSelectSchema = createSelectSchema(classStudents)
 export const gradeSelectSchema = createSelectSchema(grades)
 
 export const calendarEventSelectSchema = createSelectSchema(calendarEvents, {
-    startDate: z.date().transform(val => new Date(val)),
-    endDate: z.date().transform(val => new Date(val)),
+    startDate: z.coerce.date(),
+    endDate: z.coerce.date(),
+    updatedAt: z.coerce.date(),
+    createdAt: z.coerce.date(),
 })

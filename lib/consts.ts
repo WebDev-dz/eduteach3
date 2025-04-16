@@ -2,6 +2,8 @@ import { LessonPlan } from "@/types/entities"
 import { assignmentInsertSchema, calendarEventInsertSchema, classInsertSchema, classStudentInsertSchema, featureLimitInsertSchema, gradeInsertSchema, lessonPlanInsertSchema, materialInsertSchema, organizationInsertSchema, studentInsertSchema, subscriptionInsertSchema, userInsertSchema } from "./validation/insert"
 import { assignmentSelectSchema, calendarEventSelectSchema, classSelectSchema, classStudentSelectSchema, featureLimitSelectSchema, gradeSelectSchema, lessonPlanSelectSchema, materialSelectSchema, organizationSelectSchema, studentSelectSchema, subscriptionSelectSchema, userSelectSchema } from "./validation/select"
 
+
+// @ts-ignore
 export const lessonPlans: LessonPlan[] = [
     {
       id: 1,
@@ -47,7 +49,7 @@ export const lessonPlans: LessonPlan[] = [
       assessment: "Students will complete a character analysis worksheet and participate in class discussion.",
       notes: "Consider showing clips from a modern adaptation to help students connect with the material.",
     },
-  ]
+  ] as LessonPlan[]
   
 export const templates = [
     {

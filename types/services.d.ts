@@ -518,7 +518,7 @@ export interface CalendarEventService {
     // | "exportCalendarEvents"
     // | "importCalendarEvents"
   >;
-  fetchCalendarEvents: (teacherId: string, startDate?: Date, endDate?: Date) => Promise<CalendarEvent[]>;
+  fetchCalendarEvents: (filters: Record<string, any>) => Promise<CalendarEvent[]>;
   fetchCalendarEventById: (id: string) => Promise<CalendarEvent>;
   fetchCalendarEventsByClass: (classId: string) => Promise<CalendarEvent[]>;
   createCalendarEvent: (
