@@ -20,7 +20,7 @@ import { assignmentInsertSchema } from "@/lib/validation/insert"
 import { z } from "zod"
 import { useCreateAssignment } from "@/services/assignment-service"
 import { AllowLateSubmissionsField, ClassIdField, DueDateField, InstructionsField, TimeLimitField, TitleField, TotalPointsField, TypeField } from "@/components/custom/assignemnts/form-fields"
-import { useClasses } from '../../../../services/class-service';
+import { useClasses } from '@@@@services/class-service';
 import { useSession } from "next-auth/react"
 
 export default function CreateAssignmentPage() {

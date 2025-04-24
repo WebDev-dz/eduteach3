@@ -74,3 +74,9 @@ export type CalendarEventUpdateInput = typeof calendarEvents.$inferSelect;
 export type Assignment = typeof assignments.$inferSelect;
 export type AssignmentCreateInput = typeof assignments.$inferInsert;
 export type AssignmentUpdateInput = typeof assignments.$inferSelect;
+
+// Assignment Submission Types
+
+export type AssignmentSubmission = typeof assignmentSubmissions.$inferSelect;
+export type AssignmentSubmissionCreateInput = typeof assignmentSubmissions.$inferInsert;
+export type AssignmentSubmissionUpdateInput = typeof assignmentSubmissions.$inferSelect;

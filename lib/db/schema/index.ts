@@ -137,10 +137,10 @@ export const classes = pgTable(
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
   (table) => {
-    return {
-      teacherIdx: index("teacher_idx").on(table.teacherId),
-      organizationIdx: index("class_organization_idx").on(table.organizationId),
-    };
+    return [
+      index("teacher_idx").on(table.teacherId),
+      index("class_organization_idx").on(table.organizationId),
+    ];
   }
 );
 
@@ -192,11 +192,11 @@ export const classStudents = pgTable(
     enrollmentDate: date("enrollment_date").defaultNow().notNull(),
   },
   (table) => {
-    return {
-      pk: primaryKey({ columns: [table.classId, table.studentId] }),
-      classIdx: index("class_student_class_idx").on(table.classId),
-      studentIdx: index("class_student_student_idx").on(table.studentId),
-    };
+    return [
+      primaryKey({ columns: [table.classId, table.studentId] }),
+      index("class_student_class_idx").on(table.classId),
+      index("class_student_student_idx").on(table.studentId),
+    ];
   }
 );
 

@@ -1,305 +1,190 @@
 // @/components/custom/classes/form-fields.tsx
-import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
-import { Checkbox } from "@/components/ui/checkbox";
-import { FormFields } from "@/types/ui";
 import { defaultValues } from "@/lib/consts";
-import { UseFormReturn } from "react-hook-form";
-import { FormField, FormItem, FormLabel, FormDescription, FormMessage, FormControl } from "@/components/ui";
+import { 
+  BaseInputProps, 
+  StringInput, 
+  SelectInput, 
+  NumberInput,
+  TextInput,
+  CheckboxInput,
+  DateInput
+} from "../form-inputs";
+import React from "react";
 
 type ClassFormData = typeof defaultValues.class.insert;
 
-function NameField (
-    form: UseFormReturn<typeof defaultValues.class.insert>
-  ): React.ReactNode {
-    return (
-      <FormField
-        control={form.control}
-        name="name"
-        render={({ field }) => (
-          <FormItem className="space-y-2">
-            <FormLabel htmlFor="name">Class Name</FormLabel>
-            <FormControl>
-              <Input id="name" {...field} placeholder="e.g., Class 9A" />
-            </FormControl>
-            <FormDescription></FormDescription>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-    );
-  }
-function SubjectField (
-    form: UseFormReturn<typeof defaultValues.class.insert>
-  ): React.ReactNode {
-    return (
-      <FormField
-        control={form.control}
-        name="subject"
-        render={({ field }) => (
-          <FormItem className="space-y-2">
-            <FormLabel htmlFor="subject">Subject</FormLabel>
-            <FormControl>
-              <Select
-                onValueChange={field.onChange}
-                defaultValue={field.value}
-              >
-                <SelectTrigger id="subject">
-                  <SelectValue placeholder="Select subject" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="mathematics">Mathematics</SelectItem>
-                  <SelectItem value="science">Science</SelectItem>
-                  <SelectItem value="english">English</SelectItem>
-                  <SelectItem value="history">History</SelectItem>
-                  <SelectItem value="geography">Geography</SelectItem>
-                  <SelectItem value="art">Art</SelectItem>
-                  <SelectItem value="music">Music</SelectItem>
-                  <SelectItem value="physical_education">
-                    Physical Education
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-            </FormControl>
-            <FormDescription></FormDescription>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-    );
-  }
-function GradeLevelField (
-    form: UseFormReturn<typeof defaultValues.class.insert>
-  ): React.ReactNode {
-    return (
-      <FormField
-        control={form.control}
-        name="gradeLevel"
-        render={({ field }) => (
-          <FormItem className="space-y-2">
-            <FormLabel htmlFor="gradeLevel">Grade Level</FormLabel>
-            <FormControl>
-              <Select
-                onValueChange={field.onChange}
-                defaultValue={field.value}
-              >
-                <SelectTrigger id="gradeLevel">
-                  <SelectValue placeholder="Select grade level" />
-                </SelectTrigger>
-                <SelectContent>
-                  {[...Array(12)].map((_, i) => (
-                    <SelectItem key={i + 1} value={String(i + 1)}>
-                      Grade {i + 1}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </FormControl>
-            <FormDescription></FormDescription>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-    );
-  }
-function AcademicYearField (
-    form: UseFormReturn<typeof defaultValues.class.insert>
-  ): React.ReactNode {
-    return (
-      <FormField
-        control={form.control}
-        name="academicYear"
-        render={({ field }) => (
-          <FormItem className="space-y-2">
-            <FormLabel htmlFor="academicYear">Academic Year</FormLabel>
-            <FormControl>
-              <Select
-                onValueChange={field.onChange}
-                defaultValue={field.value}
-              >
-                <SelectTrigger id="academicYear">
-                  <SelectValue placeholder="Select academic year" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="2024-2025">2024-2025</SelectItem>
-                  <SelectItem value="2025-2026">2025-2026</SelectItem>
-                  <SelectItem value="2026-2027">2026-2027</SelectItem>
-                </SelectContent>
-              </Select>
-            </FormControl>
-            <FormDescription></FormDescription>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-    );
-  }
-function TeacherIdField (
-    form: UseFormReturn<typeof defaultValues.class.insert>
-  ): React.ReactNode {
-    // Teacher ID is automatically set from the session, so this field is hidden
-    return null;
-  }
-function ScheduleField (
-    form: UseFormReturn<typeof defaultValues.class.insert>
-  ): React.ReactNode {
-    return (
-      <FormField
-        control={form.control}
-        name="schedule"
-        render={({ field }) => (
-          <FormItem className="space-y-2">
-            <FormLabel htmlFor="schedule">Schedule</FormLabel>
-            <FormControl>
-              <Input
-                id="schedule"
-                {...field}
-                value={field.value || ""}
-                placeholder="e.g., Mon/Wed/Fri 9:00-10:30 AM"
-              />
-            </FormControl>
-            <FormDescription></FormDescription>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-    );
-  }
-function RoomField (
-    form: UseFormReturn<typeof defaultValues.class.insert>
-  ): React.ReactNode {
-    return (
-      <FormField
-        control={form.control}
-        name="room"
-        render={({ field }) => (
-          <FormItem className="space-y-2">
-            <FormLabel htmlFor="room">Room</FormLabel>
-            <FormControl>
-              <Input id="room" {...field} value={field.value || ""} placeholder="e.g., Room 203" />
-            </FormControl>
-            <FormDescription></FormDescription>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-    );
-  }
-function CapacityField (
-    form: UseFormReturn<typeof defaultValues.class.insert>
-  ): React.ReactNode {
-    return (
-      <FormField
-        control={form.control}
-        name="capacity"
-        render={({ field }) => (
-          <FormItem className="space-y-2">
-            <FormLabel htmlFor="capacity">Maximum Capacity</FormLabel>
-            <FormControl>
-              <Input
-                id="capacity"
-                type="number"
-                min="1"
-                {...field}
-                placeholder="e.g., 30"
-              />
-            </FormControl>
-            <FormDescription></FormDescription>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-    );
-  }
-function DescriptionField (
-    form: UseFormReturn<typeof defaultValues.class.insert>
-  ): React.ReactNode {
-    return (
-      <FormField
-        control={form.control}
-        name="description"
-        render={({ field }) => (
-          <FormItem className="space-y-2">
-            <FormLabel htmlFor="description">Description</FormLabel>
-            <FormControl>
-              <Textarea
-                id="description"
-                {...field}
-                value={field.value || ""}
-                placeholder="Enter a brief description of the class"
-                rows={3}
-              />
-            </FormControl>
-            <FormDescription></FormDescription>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-    );
-  }
-function IsActiveField (
-    form: UseFormReturn<typeof defaultValues.class.insert>
-  ): React.ReactNode {
-    return (
-      <FormField
-        control={form.control}
-        name="isActive"
-        render={({ field }) => (
-          <FormItem className="space-y-2">
-            <div className="flex items-center space-x-2">
-              <FormControl>
-                <Checkbox
-                  id="isActive"
-                  checked={field.value ?? false}
-                  onCheckedChange={field.onChange}
-                />
-              </FormControl>
-              <FormDescription></FormDescription>
-              <FormMessage />
-              <FormLabel htmlFor="isActive">Active Class</FormLabel>
-            </div>
-            <p className="text-sm text-muted-foreground">
-              Inactive classes won't appear in the active classes list.
-            </p>
-          </FormItem>
-        )}
-      />
-    );
-  }
+// Extended BaseInputProps to include any data needed for specific fields
+interface ClassFieldProps extends BaseInputProps {
+  data?: {[key in keyof ClassFormData]?: ClassFormData[key]};
+}
 
-// Create the actual FormFields object with all field functions
-const classFields: FormFields<ClassFormData> = {
-    NameField,
-    SubjectField,
-    GradeLevelField,
-    AcademicYearField,
-    TeacherIdField,
-    ScheduleField,
-    RoomField,
-    CapacityField,
-    DescriptionField,
-    IsActiveField,
-  };
-  
-  
-  
-  // Export all individual fields for direct imports
-  export {
-    NameField,
-    SubjectField,
-    GradeLevelField,
-    AcademicYearField,
-    TeacherIdField,
-    ScheduleField,
-    RoomField,
-    CapacityField,
-    DescriptionField,
-    IsActiveField,
-  } 
+const ClassForm = () => {
+  return;
+};
+
+// Define the NameField component with a display name
+const NameField = ({ form, name = "name", label = "Class Name", required = true }: ClassFieldProps) => (
+  <StringInput 
+    form={form} 
+    name={name} 
+    label={label} 
+    placeholder="e.g., Class 9A"
+    required={required}
+  />
+);
+NameField.displayName = "ClassForm.NameField";
+ClassForm.NameField = NameField;
+
+// Define the RoomField component with a display name
+const RoomField = ({ form, name = "room", label = "Room" }: ClassFieldProps) => (
+  <StringInput 
+    form={form} 
+    name={name} 
+    label={label}
+    placeholder="e.g., Room 203"
+  />
+);
+RoomField.displayName = "ClassForm.RoomField";
+ClassForm.RoomField = RoomField;
+
+// Define the SubjectField component with a display name
+const SubjectField = ({ form, name = "subject", label = "Subject", required = true }: ClassFieldProps) => (
+  <SelectInput 
+    form={form} 
+    name={name} 
+    label={label}
+    required={required}
+    options={[
+      { value: "mathematics", label: "Mathematics" },
+      { value: "science", label: "Science" },
+      { value: "english", label: "English" },
+      { value: "history", label: "History" },
+      { value: "geography", label: "Geography" },
+      { value: "art", label: "Art" },
+      { value: "music", label: "Music" },
+      { value: "physical_education", label: "Physical Education" }
+    ]}
+  />
+);
+SubjectField.displayName = "ClassForm.SubjectField";
+ClassForm.SubjectField = SubjectField;
+
+// Define the GradeLevelField component with a display name
+const GradeLevelField = ({ form, name = "gradeLevel", label = "Grade Level", required = true }: ClassFieldProps) => (
+  <SelectInput 
+    form={form} 
+    name={name} 
+    label={label}
+    required={required}
+    options={[...Array(12)].map((_, i) => ({
+      value: String(i + 1),
+      label: `Grade ${i + 1}`
+    }))}
+  />
+);
+GradeLevelField.displayName = "ClassForm.GradeLevelField";
+ClassForm.GradeLevelField = GradeLevelField;
+
+// Define the AcademicYearField component with a display name
+const AcademicYearField = ({ form, name = "academicYear", label = "Academic Year", required = true }: ClassFieldProps) => (
+  <SelectInput 
+    form={form} 
+    name={name} 
+    label={label}
+    required={required}
+    options={[
+      { value: "2024-2025", label: "2024-2025" },
+      { value: "2025-2026", label: "2025-2026" },
+      { value: "2026-2027", label: "2026-2027" }
+    ]}
+  />
+);
+AcademicYearField.displayName = "ClassForm.AcademicYearField";
+ClassForm.AcademicYearField = AcademicYearField;
+
+// Define the ScheduleField component with a display name
+const ScheduleField = ({ form, name = "schedule", label = "Schedule" }: ClassFieldProps) => (
+  <StringInput 
+    form={form} 
+    name={name} 
+    label={label}
+    placeholder="e.g., Mon/Wed/Fri 9:00-10:30 AM"
+  />
+);
+ScheduleField.displayName = "ClassForm.ScheduleField";
+ClassForm.ScheduleField = ScheduleField;
+
+// Define the CapacityField component with a display name
+const CapacityField = ({ form, name = "capacity", label = "Maximum Capacity" }: ClassFieldProps) => (
+  <NumberInput 
+    form={form} 
+    name={name} 
+    label={label}
+    placeholder="e.g., 30"
+    min={1}
+  />
+);
+CapacityField.displayName = "ClassForm.CapacityField";
+ClassForm.CapacityField = CapacityField;
+
+// Define the DescriptionField component with a display name
+const DescriptionField = ({ form, name = "description", label = "Description" }: ClassFieldProps) => (
+  <TextInput 
+    form={form} 
+    name={name} 
+    label={label}
+    placeholder="Enter a brief description of the class"
+    rows={3}
+  />
+);
+DescriptionField.displayName = "ClassForm.DescriptionField";
+ClassForm.DescriptionField = DescriptionField;
+
+// Define the IsActiveField component with a display name
+const IsActiveField = ({ form, name = "isActive", label = "Active Class" }: ClassFieldProps) => (
+  <CheckboxInput 
+    form={form} 
+    name={name} 
+    label={label}
+    description="Inactive classes won't appear in the active classes list."
+  />
+);
+IsActiveField.displayName = "ClassForm.IsActiveField";
+ClassForm.IsActiveField = IsActiveField;
+
+// Define the StartDateField component with a display name
+const StartDateField = ({ form, name = "startDate", label = "Start Date" }: ClassFieldProps) => (
+  <DateInput 
+    form={form} 
+    name={name} 
+    label={label}
+  />
+);
+StartDateField.displayName = "ClassForm.StartDateField";
+ClassForm.StartDateField = StartDateField;
+
+// Define the EndDateField component with a display name
+const EndDateField = ({ form, name = "endDate", label = "End Date" }: ClassFieldProps) => (
+  <DateInput 
+    form={form} 
+    name={name} 
+    label={label}
+  />
+);
+EndDateField.displayName = "ClassForm.EndDateField";
+ClassForm.EndDateField = EndDateField;
+
+// Define the TeacherIdField component with a display name
+const TeacherIdField = ({ form, name = "teacherId", label = "Teacher", options = [] }: ClassFieldProps & { options: Array<{value: string, label: string}> }) => (
+  <SelectInput 
+    form={form} 
+    name={name} 
+    label={label}
+    options={options}
+    placeholder="Select a teacher"
+  />
+);
+TeacherIdField.displayName = "ClassForm.TeacherIdField";
+ClassForm.TeacherIdField = TeacherIdField;
+
+export default ClassForm;

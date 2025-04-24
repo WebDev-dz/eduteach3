@@ -69,7 +69,7 @@ import {
   useCalendarEvents,
   useCreateCalendarEvent,
   useUpdateCalendarEvent,
-} from "../../../services/calendar-event-service";
+} from "@@@services/calendar-event-service";
 import { z } from "zod";
 import {
   AllDayField,

@@ -1,7 +1,6 @@
 // @/services/assignment-service
 "use client"
 
-import { URL } from 'url'
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
